@@ -1,25 +1,35 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card } from "@/components/ui/card"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { ImageIcon, Trash2 } from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { ImageIcon, Trash2 } from "lucide-react";
 
 const promoFormSchema = z.object({
-  promoCode: z.string().min(1, "Promo code is required").min(3, "Promo code must be at least 3 characters"),
-})
+  promoCode: z
+    .string()
+    .min(1, "Promo code is required")
+    .min(3, "Promo code must be at least 3 characters"),
+});
 
 interface PromoItem {
-  id: string
-  name: string
-  thumbnail?: string
-  bannerUrl?: string
+  id: string;
+  name: string;
+  thumbnail?: string;
+  bannerUrl?: string;
 }
 
 export default function AnnouncementsContainer() {
@@ -28,7 +38,7 @@ export default function AnnouncementsContainer() {
     defaultValues: {
       promoCode: "",
     },
-  })
+  });
 
   const [promoItems, setPromoItems] = useState<PromoItem[]>([
     {
@@ -56,40 +66,42 @@ export default function AnnouncementsContainer() {
       name: "Product Announcing",
       bannerUrl: "/hair-style.jpg",
     },
-  ])
+  ]);
 
   const onSubmit = (values: z.infer<typeof promoFormSchema>) => {
-    console.log("Saving promo code:", values.promoCode)
+    console.log("Saving promo code:", values.promoCode);
     // Add your save logic here
-    form.reset()
-  }
+    form.reset();
+  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
+    const files = event.target.files;
     if (files) {
       Array.from(files).forEach((file, index) => {
-        const reader = new FileReader()
+        const reader = new FileReader();
         reader.onload = (e) => {
           const newItem: PromoItem = {
             id: Date.now().toString() + index,
             name: "Product Announcing",
             bannerUrl: e.target?.result as string,
-          }
-          setPromoItems((prev) => [...prev, newItem])
-        }
-        reader.readAsDataURL(file)
-      })
-      console.log("Files uploaded:", files)
+          };
+          setPromoItems((prev) => [...prev, newItem]);
+        };
+        reader.readAsDataURL(file);
+      });
+      console.log("Files uploaded:", files);
     }
-  }
+  };
 
   const handleDeleteItem = (id: string) => {
-    setPromoItems(promoItems.filter((item) => item.id !== id))
-  }
+    setPromoItems(promoItems.filter((item) => item.id !== id));
+  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-xl font-semibold text-gray-900 mb-6">Announcements</h1>
+      <h1 className="text-xl font-semibold text-gray-900 mb-6">
+        Announcements
+      </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Side - Promo Control */}
@@ -109,7 +121,10 @@ export default function AnnouncementsContainer() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full bg-[#4625A0] hover:bg-[#49328a] text-white">
+              <Button
+                type="submit"
+                className="w-full bg-[#4625A0] hover:bg-[#49328a] text-white"
+              >
                 Save
               </Button>
             </form>
@@ -118,6 +133,7 @@ export default function AnnouncementsContainer() {
 
         {/* Right Side - Banner Image Upload and List */}
         <div className="space-y-6">
+          <h6 className="font-medium">Upload Banner</h6>
           {/* Image Upload Area */}
           <div className="relative">
             <input
@@ -133,8 +149,12 @@ export default function AnnouncementsContainer() {
               className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-gray-400 transition-colors"
             >
               <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
-              <p className="text-sm text-gray-600 text-center">Drop your images here, or browse</p>
-              <p className="text-xs text-gray-500 mt-1">Jpeg, png are allowed</p>
+              <p className="text-sm text-gray-600 text-center">
+                Drop your images here, or browse
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Jpeg, png are allowed
+              </p>
             </label>
           </div>
 
@@ -155,7 +175,9 @@ export default function AnnouncementsContainer() {
                         <ImageIcon className="w-5 h-5 text-gray-400" />
                       )}
                     </div>
-                    <span className="text-sm font-medium text-gray-700">{item.name}</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      {item.name}
+                    </span>
                   </div>
                   <button
                     onClick={() => handleDeleteItem(item.id)}
@@ -170,5 +192,5 @@ export default function AnnouncementsContainer() {
         </div>
       </div>
     </div>
-  )
+  );
 }
