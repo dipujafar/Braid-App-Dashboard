@@ -1,12 +1,9 @@
-"use client";
+"use client";;
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import Image from "next/image";
 import { message, Popconfirm, PopconfirmProps } from "antd";
 import { useState } from "react";
 import AddCategory from "@/components/shared/AddCategory";
-import Link from "next/link";
 import CategoryCard from "./CategoryCard";
 import { serviceCategories } from "./utils.data";
 import { useRouter } from "next/navigation";
@@ -32,7 +29,7 @@ export default function CategoryContainer() {
       <div className="flex justify-between items-center flex-wrap xl:mb-6 mb-4 ">
         <h3 className="lg:text-2xl text-xl font-medium">Categories</h3>
         <Button
-          onClick={() => setOpen(true)}
+          onClick={() => {  setOpen(true); setTitle("Add Category"); }}
           className="flex items-center gap-2 bg-[#4625A0] hover:bg-[#5132a5]"
         >
           <Plus />

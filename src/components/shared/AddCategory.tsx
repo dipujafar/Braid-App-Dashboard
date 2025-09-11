@@ -96,7 +96,7 @@ const AddCategory = ({ open, setOpen, title }: TPropsType) => {
                 block
                 className="!border-none"
               >
-                Update Password
+                Submit
               </Button>
             </Form>
           </ConfigProvider>
