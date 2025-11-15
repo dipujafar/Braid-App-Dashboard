@@ -1,4 +1,6 @@
 "use client";
+import { useForgetPasswordMutation } from "@/redux/api/authApi";
+import { Error_Modal } from "@/utils/modals";
 import type { FormProps } from "antd";
 import { Button, Form, Input } from "antd";
 import { useRouter } from "next/navigation";
@@ -13,13 +15,16 @@ const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
 
 const ForgetPassForm = () => {
   const route = useRouter();
+  const [forgetPass, { isLoading }] = useForgetPasswordMutation();
 
   //handle password change
-  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    console.log("Success:", values);
-
-    if (values.email) {
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    try {
+      const res = await forgetPass(values).unwrap();
+      sessionStorage?.setItem("forgotPasswordToken", res?.data?.accessToken);
       route.push("/verify-email");
+    } catch (error: any) {
+      Error_Modal({ title: error?.data?.message });
     }
   };
 
@@ -46,7 +51,7 @@ const ForgetPassForm = () => {
         <Input size="large" placeholder="Email" />
       </Form.Item>
 
-      <Button htmlType="submit" size="large" block >
+      <Button loading={isLoading} disabled={isLoading} htmlType="submit" size="large" block >
         Send OTP
       </Button>
     </Form>
