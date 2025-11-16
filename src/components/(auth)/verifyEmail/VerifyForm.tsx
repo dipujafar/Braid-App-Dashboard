@@ -9,9 +9,7 @@ type FieldType = {
   otp: string;
 };
 
-const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
-  console.log("Failed:", errorInfo);
-};
+
 
 const VerifyEmailForm = () => {
   const route = useRouter();
@@ -34,7 +32,6 @@ const VerifyEmailForm = () => {
       name="basic"
       initialValues={{ remember: true }}
       onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
       autoComplete="off"
       layout="vertical"
     >
@@ -42,7 +39,7 @@ const VerifyEmailForm = () => {
         <Input.OTP size="large" />
       </Form.Item>
 
-      <Button htmlType="submit" size="large" block>
+      <Button loading={isLoading} htmlType="submit" size="large" block>
         Verify Email
       </Button>
     </Form>

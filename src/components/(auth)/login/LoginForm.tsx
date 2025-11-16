@@ -4,7 +4,7 @@ import { setUser } from "@/redux/features/authSlice";
 import { useAppDispatch } from "@/redux/hooks";
 import { Error_Modal } from "@/utils/modals";
 import type { FormProps } from "antd";
-import { Button, Checkbox, Form, Input, Flex } from "antd";
+import { Button, Form, Input, Flex } from "antd";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -17,9 +17,6 @@ type FieldType = {
   remember?: string;
 };
 
-const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
-  console.log("Failed:", errorInfo);
-};
 
 const LoginForm = () => {
   const [login, { isLoading }] = useLoginMutation();
@@ -64,7 +61,6 @@ const LoginForm = () => {
       name="basic"
       initialValues={{ remember: true }}
       onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
       autoComplete="off"
       layout="vertical"
       style={{ width: "354px" }}
