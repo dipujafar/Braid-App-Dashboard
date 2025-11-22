@@ -1,5 +1,8 @@
+import { useCreateCategoriesMutation } from "@/redux/api/categoriesApi";
+import { Error_Modal } from "@/utils/modals";
 import { Button, ConfigProvider, Form, Input, Modal, Upload } from "antd";
 import { RiCloseLargeLine } from "react-icons/ri";
+import { toast } from "sonner";
 
 type TPropsType = {
   open: boolean;
@@ -9,11 +12,25 @@ type TPropsType = {
 
 const AddCategory = ({ open, setOpen, title }: TPropsType) => {
   const [form] = Form.useForm();
+  const [createCategories, { isLoading }] = useCreateCategoriesMutation();
 
   // @ts-expect-error: Ignoring TypeScript error due to inferred 'any' type for 'values' which is handled in the form submit logic
-  const handleSubmit = (values) => {
-    console.log("Success:", values);
-    setOpen(false);
+  const handleSubmit = async (values) => {
+    const formattedData = { name: values?.categoryName };
+    
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(formattedData));
+    formData.append("image", values?.categoryImage?.file);
+    try {
+      await createCategories(formData).unwrap();
+      toast.success("Successfully added category", { duration: 1000 });
+      form.resetFields();
+      setOpen(false);
+    }
+    catch (error: any) {
+      Error_Modal({ title: error?.data?.message });
+    }
+
   };
   return (
     <>
@@ -45,7 +62,6 @@ const AddCategory = ({ open, setOpen, title }: TPropsType) => {
               components: {
                 Input: {
                   colorText: "#000",
-                  colorTextPlaceholder: "#000",
                 },
                 Form: {
                   labelColor: "#var(--color-primary-gray)",
@@ -63,13 +79,13 @@ const AddCategory = ({ open, setOpen, title }: TPropsType) => {
                 marginTop: "25px",
               }}
             >
-              {/*  input  new Password*/}
+
               <Form.Item
                 label="Category name"
                 name="categoryName"
                 rules={[{ required: true, message: "Enter category name" }]}
               >
-                <Input.Password
+                <Input
                   size="large"
                   placeholder="Enter category name"
                 />
@@ -79,12 +95,14 @@ const AddCategory = ({ open, setOpen, title }: TPropsType) => {
               <Form.Item
                 label="Upload category Image"
                 name="categoryImage"
-                rules={[{ required: true, message: "Category Image" }]}
+                rules={[{ required: true, message: "Category Image is required" }]}
               >
                 <Upload
                   maxCount={1}
                   listType="picture"
                   beforeUpload={() => false}
+                  accept="image/*"
+
                 >
                   <Button className="!border-none">Upload</Button>
                 </Upload>
@@ -95,6 +113,7 @@ const AddCategory = ({ open, setOpen, title }: TPropsType) => {
                 size="large"
                 block
                 className="!border-none"
+                loading={isLoading}
               >
                 Submit
               </Button>

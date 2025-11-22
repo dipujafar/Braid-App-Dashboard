@@ -120,7 +120,7 @@ const SidebarContainer = ({ collapsed }: { collapsed: boolean }) => {
         className="sidebar-menu text-lg bg-main-color !mt-1"
         items={navLinks}
       />
-      <div className="absolute    bottom-1 flex justify-center items-center px-2">
+      <div className="fixed    bottom-1 flex justify-center items-center px-2">
         <div className="py-2 flex flex-col justify-center items-center gap-y-5 ">
           <Link href={"/"}>
             <Image
