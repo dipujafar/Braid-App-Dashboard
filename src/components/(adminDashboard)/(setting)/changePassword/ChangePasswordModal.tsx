@@ -2,6 +2,12 @@ import { Button, ConfigProvider, Form, Input, Modal } from "antd";
 import { RiCloseLargeLine } from "react-icons/ri";
 import ForgetPasswordModal from "./ForgetPasswordModal";
 import { useState } from "react";
+import { useChangePasswordMutation } from "@/redux/api/authApi";
+import { toast } from "sonner";
+import { useAppDispatch } from "@/redux/hooks";
+import { logout } from "@/redux/features/authSlice";
+import { useRouter } from "next/navigation";
+import { Error_Modal } from "@/utils/modals";
 
 type TPropsType = {
   open: boolean;
@@ -11,10 +17,28 @@ type TPropsType = {
 const ChangePasswordModal = ({ open, setOpen }: TPropsType) => {
   const [form] = Form.useForm();
   const [openModal, setOpenModal] = useState(false);
+  const [changePassword, { isLoading }] = useChangePasswordMutation();
+  const dispatch = useAppDispatch();
+  const router = useRouter();
 
   // @ts-expect-error: Ignoring TypeScript error due to inferred 'any' type for 'values' which is handled in the form submit logic
-  const handleSubmit = (values) => {
-    console.log("Success:", values);
+  const handleSubmit = async (values) => {
+    const formattedData = {
+      oldPassword: values?.oldPassword,
+      newPassword: values?.newPassword,
+      confirmPassword: values?.confirmPassword
+    }
+
+    try {
+      await changePassword(formattedData).unwrap();
+      toast.success("Successfully Change password", { duration: 1000 });
+      form.resetFields();
+      dispatch(logout());
+      router.refresh();
+    }
+    catch (error: any) {
+      Error_Modal({ title: error?.data?.message });
+    }
     setOpen(false);
   };
   return (
@@ -82,14 +106,9 @@ const ChangePasswordModal = ({ open, setOpen }: TPropsType) => {
               <Form.Item
                 label="Old Password"
                 name="oldPassword"
-                rules={[
-                  { required: true, message: "Please Enter Old Password" },
-                ]}
+                rules={[{ required: true, message: "Please Enter Old Password" }]}
               >
-                <Input.Password
-                  size="large"
-                  placeholder="Enter old password "
-                />
+                <Input.Password size="large" placeholder="Enter old password " />
               </Form.Item>
 
               {/*  input  new Password*/}
@@ -97,7 +116,12 @@ const ChangePasswordModal = ({ open, setOpen }: TPropsType) => {
                 label="New password"
                 name="newPassword"
                 rules={[
-                  { required: true, message: "Please Enter New  Password" },
+                  { required: true, message: "Please set your new password!" },
+                  {
+                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/,
+                    message:
+                      "Password must contain at least one lowercase, one uppercase, and one special character.",
+                  },
                 ]}
               >
                 <Input.Password size="large" placeholder="Set new password" />
@@ -108,7 +132,17 @@ const ChangePasswordModal = ({ open, setOpen }: TPropsType) => {
                 label="Re-enter new password"
                 name="confirmPassword"
                 rules={[
-                  { required: true, message: "Please Re-enter new password" },
+                  { required: true, message: "Please confirm your password!" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue("newPassword") === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error("Passwords do not match with new password!")
+                      );
+                    },
+                  }),
                 ]}
               >
                 <Input.Password
@@ -117,22 +151,17 @@ const ChangePasswordModal = ({ open, setOpen }: TPropsType) => {
                 />
               </Form.Item>
 
-              <p
-                onClick={() => {
-                  setOpen(false);
-                  setOpenModal(true);
-                }}
-                className="mb-5 font-medium cursor-pointer text-gray-600"
-              >
-                Forget password?
-              </p>
+              {/* <p
+              onClick={() => {
+                setOpen(false);
+                setOpenModal(true);
+              }}
+              className="mb-5 font-medium cursor-pointer text-main-color"
+            >
+              Forget password?
+            </p> */}
 
-              <Button
-                htmlType="submit"
-                size="large"
-                block
-                className="!py-6 border-main-color"
-              >
+              <Button loading={isLoading} htmlType="submit" size="large" block>
                 Update Password
               </Button>
             </Form>

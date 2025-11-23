@@ -26,6 +26,8 @@ export default function MainCategory({ data, loading }: any) {
       </CardFooter>
     </Card>
   }
+
+
   return (
     <div className="w-full lg:w-1/3 bg-[#F9F9FA] p-6">
       <Card className="px-4 py-8 flex flex-col items-center space-y-3 hover:shadow-md transition-shadow border-[#BBBBBB] ">
