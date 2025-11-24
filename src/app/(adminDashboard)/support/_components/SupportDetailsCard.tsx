@@ -1,14 +1,30 @@
 "use client"
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+
 import { Textarea } from "@/components/ui/textarea"
 import { useState } from "react"
+import { useGetSingleSupportDetailsQuery, useSendReplyMutation } from "@/redux/api/supportsApi"
+import { useSearchParams } from "next/navigation"
+import SupportDetailsCardSkeleton from "./SupportDetailsCardSkeleton"
+import { toast } from "sonner"
+import { Button } from "antd"
 
-export function SupportDetailsCard() {
-  const [message, setMessage] = useState("")
+export function SupportDetailsCard({ selectedId }: { selectedId: string }) {
+  const [message, setMessage] = useState("");
+  const { data, isLoading } = useGetSingleSupportDetailsQuery(selectedId, { skip: !selectedId });
+  const [sendReply, { isLoading: isSending }] = useSendReplyMutation();
 
-  const handleSend = () => {
+  if (isLoading) return <SupportDetailsCardSkeleton />
+
+
+  const handleSend = async () => {
+    try {
+      await sendReply({ id: selectedId, data: { messageReply: message } }).unwrap();
+      toast.success("Successfully sent reply");
+    }
+    catch (error: any) {
+      toast.error(error?.data?.message);
+    }
     console.log("Sending message:", message)
     // Handle send logic here
   }
@@ -23,30 +39,28 @@ export function SupportDetailsCard() {
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <span className=" text-gray-600">First name :</span>
-            <span className=" text-black font-medium">Istik</span>
+            <span className=" text-black font-medium capitalize">{data?.data?.firstName}</span>
           </div>
 
           <div className="flex justify-between items-center">
             <span className=" text-gray-600">Last name :</span>
-            <span className=" text-black font-medium">Ahamed</span>
+            <span className=" text-black font-medium capitalize">{data?.data?.lastName}</span>
           </div>
 
           <div className="flex justify-between items-center">
             <span className=" text-gray-600">Email :</span>
-            <span className=" text-black font-medium">isahmed739@gmail.com</span>
+            <span className=" text-black font-medium">{data?.data?.email}</span>
           </div>
 
           <div className="flex justify-between items-center">
             <span className=" text-gray-600">Phone number :</span>
-            <span className=" text-black font-medium">123456789</span>
+            <span className=" text-black font-medium">{data?.data?.phone}</span>
           </div>
 
           <div className="space-y-2">
             <span className="text-lg ">Message :</span>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Collision Center Inc. specializes in professional automobile detailing, offering top-quality services
-              including paint correction, interior cleaning, and polishing to restore vehicles to pristine condition
-              with precision and care.
+              {data?.data?.message}
             </p>
           </div>
         </div>
@@ -57,13 +71,15 @@ export function SupportDetailsCard() {
 
           <Textarea
             placeholder="Your message..."
-            value={message}
+            value={message || data?.data?.messageReply}
+            defaultValue={data?.data?.messageReply}
             onChange={(e) => setMessage(e.target.value)}
             className="min-h-[120px] resize-none border-gray-200 text-sm placeholder:text-gray-400"
           />
 
           <Button
             onClick={handleSend}
+            loading={isSending}
             className="w-full bg-[#4625A0] hover:bg-[#563f96] text-white font-medium py-2.5"
           >
             Send

@@ -1,12 +1,13 @@
 "use client";
-import { Avatar, Badge, Flex } from "antd";
+import { Badge, Flex } from "antd";
 import { FaBars } from "react-icons/fa6";
 import { IoNotificationsOutline } from "react-icons/io5";
-import avatarImg from "@/assets/image/profile.png";
 
 import Link from "next/link";
 import { X } from "lucide-react";
 import useGreeting from "@/hooks/useGreeting";
+import { useAppSelector } from "@/redux/hooks";
+import { useGetProfileQuery } from "@/redux/api/profileApi";
 
 type TNavbarProps = {
   collapsed: boolean;
@@ -15,6 +16,8 @@ type TNavbarProps = {
 
 const Navbar = ({ collapsed, setCollapsed }: TNavbarProps) => {
   const greeting = useGreeting();
+  const user = useAppSelector((state) => state.auth.user);
+  const { data, isLoading } = useGetProfileQuery(undefined, { skip: !user });
   return (
     <div className="flex items-center justify-between w-[97%] font-poppins text-text-color xl:px-8 px-4">
       {/* Header left side */}
@@ -33,7 +36,7 @@ const Navbar = ({ collapsed, setCollapsed }: TNavbarProps) => {
           <h2 className="text-lg  font-medium">
             Dashboard
             <span className="block  text-sm font-normal">
-              {greeting}, Istiak Ahmed
+              {greeting}, <span className="font-medium"> {data?.data?.fullName?.split(" ")[0] || data?.data?.fullName}</span>
             </span>
           </h2>
         </div>
@@ -61,7 +64,7 @@ const Navbar = ({ collapsed, setCollapsed }: TNavbarProps) => {
           </div>
         </Link>
 
-       
+
       </Flex>
     </div>
   );

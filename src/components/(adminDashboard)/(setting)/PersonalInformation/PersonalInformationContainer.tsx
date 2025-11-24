@@ -8,6 +8,9 @@ import profile from "@/assets/image/adminProfile.png";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Camera, Trash2, X } from "lucide-react";
+import { useGetProfileQuery, useUpdateProfileMutation, useUpdateProfilePictureMutation } from "@/redux/api/profileApi";
+import PersonalInformationSkeleton from "./PersonalInformationSkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PersonalInformationContainer = () => {
   const route = useRouter();
@@ -15,33 +18,63 @@ const PersonalInformationContainer = () => {
   const [edit, setEdit] = useState(false);
   const [fileName, setFileName] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const { data, isLoading } = useGetProfileQuery(undefined);
+  const [updateProfile, { isLoading: updateProfileLoading }] = useUpdateProfileMutation();
+  const [updateProfilePicture, { isLoading: updateProfilePictureLoading }] = useUpdateProfilePictureMutation();
+
 
   // @ts-expect-error: Ignoring TypeScript error due to inferred 'any' type for 'values' which is handled in the form submit logic
-  const handleSubmit = (values) => {
-    toast.success("Successfully Change personal information", {
-      duration: 1000,
-    });
-    setEdit(false);
+  const handleSubmit = async (values) => {
+    const formattedData = {
+      fullName: values.name,
+      phone: values.phone,
+    };
+
+    try {
+      await updateProfile(formattedData).unwrap();
+      toast.success("Successfully Change personal information", {
+        duration: 1000,
+      });
+      setEdit(false);
+    } catch (error: any) {
+      toast.error(error?.data?.message);
+    }
+
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = event.target;
 
     const file = input.files?.[0];
-    console.log(file);
+    const formData = new FormData();
 
-    if (file) {
-      const url = URL.createObjectURL(file);
-      console.log(url);
-      setImageUrl(url);
-      setFileName(file);
-    } else {
+
+    formData.append("profile", file!);
+
+    try {
+      if (file) {
+        const url = URL.createObjectURL(file);
+        setImageUrl(url);
+        setFileName(file);
+      } else {
+        setImageUrl(null);
+        setFileName(null);
+      }
+
+      await updateProfilePicture(formData).unwrap();
+
+
+      input.value = "";
+    }
+    catch (error: any) {
+      toast.error(error?.data?.message);
       setImageUrl(null);
       setFileName(null);
     }
-
-    input.value = "";
   };
+
+
 
   return (
     <div>
@@ -74,30 +107,20 @@ const PersonalInformationContainer = () => {
       <hr className="my-4" />
 
       {/* personal information */}
-      <div className="mt-10 flex justify-center flex-col xl:flex-row items-center  gap-10">
+      {isLoading ? <PersonalInformationSkeleton /> : <div className="mt-10 flex justify-center flex-col xl:flex-row items-center  gap-10">
         <div className="bg-primary-light-gray h-[365px] md:w-[350px] rounded-xl border border-main-color flex justify-center items-center  text-text-color">
           <div className="space-y-1 relative">
             <div className="relative group">
-              <Image
-                src={imageUrl || profile}
-                alt="adminProfile"
-                width={1200}
-                height={1200}
-                className="size-36 rounded-full flex justify-center items-center"
-              ></Image>
+              {updateProfilePictureLoading ?
+                <Skeleton className="size-36 rounded-full flex justify-center items-center" />
+                : <Image
+                  src={imageUrl || data?.data?.image}
+                  alt="adminProfile"
+                  width={1200}
+                  height={1200}
+                  className="size-36 rounded-full flex justify-center items-center"
+                ></Image>}
 
-              {/* cancel button */}
-              {fileName && imageUrl && (
-                <div
-                  className="absolute left-4 top-2 cursor-pointer rounded-md bg-primary-pink opacity-0 duration-1000 group-hover:opacity-100"
-                  onClick={() => {
-                    setFileName(null);
-                    setImageUrl(null);
-                  }}
-                >
-                  <Trash2 size={20} color="red" />
-                </div>
-              )}
               {/* upload image */}
               <input
                 type="file"
@@ -143,9 +166,9 @@ const PersonalInformationContainer = () => {
                 marginTop: "25px",
               }}
               initialValues={{
-                name: "James Tracy",
-                email: "enrique@gmail.com",
-                phone: "3000597212",
+                name: data?.data?.fullName,
+                email: data?.data?.email,
+                phone: data?.data?.phone,
               }}
             >
               {/*  input  name */}
@@ -163,15 +186,11 @@ const PersonalInformationContainer = () => {
 
               {/*  input  email */}
               <Form.Item label="Email" name="email">
-                {edit ? (
-                  <Input size="large" placeholder="Enter email "></Input>
-                ) : (
-                  <Input
-                    size="large"
-                    placeholder="Enter email"
-                    readOnly
-                  ></Input>
-                )}
+                <Input
+                  size="large"
+                  placeholder="Enter email"
+                  readOnly
+                ></Input>
               </Form.Item>
 
               {/* input  phone number  */}
@@ -193,6 +212,7 @@ const PersonalInformationContainer = () => {
                   size="large"
                   block
                   style={{ border: "none" }}
+                  loading={updateProfileLoading}
                 >
                   Save Change
                 </Button>
@@ -200,7 +220,7 @@ const PersonalInformationContainer = () => {
             </Form>
           </ConfigProvider>
         </div>
-      </div>
+      </div>}
     </div>
   );
 };

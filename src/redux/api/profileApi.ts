@@ -18,7 +18,15 @@ const profileApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.profile],
     }),
+    updateProfilePicture: builder.mutation({
+      query: (data) => ({
+        url: "/users/profile/picture",
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: [tagTypes.profile],
+    }),
   }),
 });
 
-export const { useGetProfileQuery, useUpdateProfileMutation } = profileApi;
+export const { useGetProfileQuery, useUpdateProfileMutation, useUpdateProfilePictureMutation } = profileApi;
