@@ -7,6 +7,8 @@ export const tagTypes = {
   privacyPolicy: "PrivacyPolicy",
   profile: "Profile",
   support: "Support",
+  users: "Users",
+  specialists: "Specialists",
 };
 
 export const tagTypesList = [
@@ -18,4 +20,6 @@ export const tagTypesList = [
   tagTypes.privacyPolicy,
   tagTypes.profile,
   tagTypes.support,
+  tagTypes.users,
+  tagTypes.specialists,
 ];

@@ -7,7 +7,7 @@ import { FiEdit } from "react-icons/fi";
 import profile from "@/assets/image/adminProfile.png";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Camera, Trash2, X } from "lucide-react";
+import { Camera, CloudFog, Trash2, X } from "lucide-react";
 import { useGetProfileQuery, useUpdateProfileMutation, useUpdateProfilePictureMutation } from "@/redux/api/profileApi";
 import PersonalInformationSkeleton from "./PersonalInformationSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +21,8 @@ const PersonalInformationContainer = () => {
   const { data, isLoading } = useGetProfileQuery(undefined);
   const [updateProfile, { isLoading: updateProfileLoading }] = useUpdateProfileMutation();
   const [updateProfilePicture, { isLoading: updateProfilePictureLoading }] = useUpdateProfilePictureMutation();
+
+
 
 
   // @ts-expect-error: Ignoring TypeScript error due to inferred 'any' type for 'values' which is handled in the form submit logic
@@ -114,7 +116,7 @@ const PersonalInformationContainer = () => {
               {updateProfilePictureLoading ?
                 <Skeleton className="size-36 rounded-full flex justify-center items-center" />
                 : <Image
-                  src={imageUrl || data?.data?.image}
+                  src={data?.data?.image || profile}
                   alt="adminProfile"
                   width={1200}
                   height={1200}

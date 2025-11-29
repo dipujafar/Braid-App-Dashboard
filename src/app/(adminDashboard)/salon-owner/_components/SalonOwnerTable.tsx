@@ -1,17 +1,16 @@
 "use client";
-import {
-  Image,
-  Input,
-  message,
-  Popconfirm,
-  PopconfirmProps,
-  TableProps,
-} from "antd";
+import { Image, Input, TableProps } from "antd";
 import { useState } from "react";
 import DataTable from "@/utils/DataTable";
-import { CgUnblock } from "react-icons/cg";
-import { ArrowDownWideNarrowIcon, Eye, Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import SalonOwnerDetails from "@/components/modals/SalonOwnerDetails/SalonOwnerDetails";
+import { useSearchParams } from "next/navigation";
+import { useDebounce } from "use-debounce";
+import { useGetAllUsersQuery } from "@/redux/api/usersApi";
+import TableSkeleton from "@/components/shared/TableSkeleton";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import BlockUser from "@/components/shared/BlockUser";
+import moment from "moment";
 
 type TDataType = {
   key?: number;
@@ -20,44 +19,58 @@ type TDataType = {
   email: string;
   date: string;
   availability: string;
+  image: string;
+  _id: string;
+  status: string;
 };
-const data: TDataType[] = Array.from({ length: 18 }).map((data, inx) => ({
-  key: inx,
-  serial: inx + 1,
-  name: "Muskan Tanaz",
-  email: "muskantanaz@gmail.com",
-  date: "10 Aug 25, 11.10PM",
-  type: "User",
-  availability: inx % 2 === 0 ? "Online" : "Offline",
-}));
 
-const confirmBlock: PopconfirmProps["onConfirm"] = (e) => {
-  console.log(e);
-  message.success("Blocked the salon owner");
-};
+
 
 const SalonOwnerTable = () => {
   const [open, setOpen] = useState(false);
+  const [currentData, setCurrentData] = useState<TDataType | null>(null);
+  const page = useSearchParams().get("page") || "1";
+  const limit = useSearchParams().get("limit") || "10";
+  const [searchText, setSearchText] = useState("");
+  const [searchValue] = useDebounce(searchText, 500);
+
+  //  set queries
+  const queries: Record<string, string> = {};
+  if (page) queries.page = page;
+  if (limit) queries.limit = limit;
+  if (searchValue) queries.searchTerm = searchValue;
+  queries.role = "owner";
+
+  const { data: usersData, isLoading } = useGetAllUsersQuery(queries);
+
+  if (isLoading) return <TableSkeleton />
 
   const columns: TableProps<TDataType>["columns"] = [
     {
       title: "Serial",
-      dataIndex: "serial",
-      render: (text) => <p>#{text}</p>,
+      render: (text, record, index) => <p>
+        {
+          `# ${Number(page) === 1
+            ? index + 1
+            : (Number(page) - 1) * Number(limit) + index + 1
+          }`}
+      </p>,
     },
     {
       title: "User Name",
-      dataIndex: "name",
+      dataIndex: "fullName",
       render: (text, record) => (
         <div className="flex items-center gap-x-1">
-          <Image
-            src={"/user_image1.png"}
-            alt="profile-picture"
+          {record?.image ? <Image
+            src={record?.image}
+            alt="user_image"
             width={40}
             height={40}
-            className="size-10"
-          ></Image>
+            className="rounded-full"
+          /> : <Avatar > <AvatarFallback className="w-full flex-center uppercase text-lg bg-gray-200 text-black " >{text?.charAt(0)} </AvatarFallback></Avatar>
+          }
           <p>{text}</p>
+          {record?.status === "blocked" && <h4 className="ml-2 bg-red-400 text-white px-2 rounded">Blocked</h4>}
         </div>
       ),
     },
@@ -67,58 +80,21 @@ const SalonOwnerTable = () => {
     },
 
     {
-      title: "Date",
-      dataIndex: "date",
+      title: "Register Date",
+      dataIndex: "createdAt",
+      render: (text) => <p>{moment(text).format("ll")}</p>,
     },
-    {
-      title: "Available",
-      dataIndex: "availability",
-      render: (text) => (
-        <div className="text-text-color">
-          {text === "Online" ? (
-            <div className="flex items-center gap-x-1">
-              <span className="size-2 flex-shrink-0 bg-green-500 rounded-full"></span> Online
-            </div>
-          ) : (
-            <div className="flex items-center gap-x-1">  <span className="size-2 flex-shrink-0 bg-red-500 rounded-full"></span> Offline </div>
-          )}
-        </div>
-      ),
-      filters: [
-        {
-          text: "Online",
-          value: "Online",
-        },
-        {
-          text: "Offline",
-          value: "Offline",
-        },
-      ],
-      filterIcon: () => (
-        <ArrowDownWideNarrowIcon
-          className="flex justify-start items-start"
-          color="#646786"
-        />
-      ),
-      onFilter: (value, record) =>
-        record.availability.indexOf(value as string) === 0,
+     {
+      title: "Contact No",
+      dataIndex: "phone",
     },
-
     {
       title: "Action",
       dataIndex: "action",
-      render: () => (
+      render: (_, record) => (
         <div className="flex gap-2">
-          <Eye size={22} color="#138487" onClick={() => setOpen(!open)} className="cursor-pointer" />
-          <Popconfirm
-            title="Block the Salon Owner"
-            description="Are you sure to block this salon owner?"
-            onConfirm={confirmBlock}
-            okText="Yes"
-            cancelText="No"
-          >
-            <CgUnblock size={22} color="#CD0335" />
-          </Popconfirm>
+          <Eye size={22} color="#138487" onClick={() => { setOpen(!open); setCurrentData(record) }} className="cursor-pointer" />
+          <BlockUser id={record?._id} isActive={record?.status === "ongoing" ? true : false} />
         </div>
       ),
     },
@@ -132,10 +108,12 @@ const SalonOwnerTable = () => {
           className="!w-[180px] lg:!w-[250px] !py-2 placeholder:text-white !border-none !bg-[#d8d7d7]"
           placeholder="Search Salon Owner..."
           prefix={<Search size={16} color="#000"></Search>}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
         ></Input>
       </div>
-      <DataTable columns={columns} data={data} pageSize={11}></DataTable>
-      <SalonOwnerDetails open={open} setOpen={setOpen}></SalonOwnerDetails>
+      <DataTable columns={columns} data={usersData?.data} pageSize={Number(limit)} total={usersData?.meta?.totalDoc} ></DataTable>
+      <SalonOwnerDetails open={open} setOpen={setOpen} data={currentData}></SalonOwnerDetails>
     </div>
   );
 };

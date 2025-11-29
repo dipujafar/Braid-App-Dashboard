@@ -1,20 +1,29 @@
-import { Avatar, Modal } from "antd";
+import {  Modal } from "antd";
 import { RiCloseLargeLine } from "react-icons/ri";
-import { reviews } from "./utils";
+import { useEffect, useState } from "react";
+import moment from "moment";
+import RatingAndReview from "@/components/shared/Rating/RatingAndReview";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type TPropsType = {
   open: boolean;
   setOpen: (collapsed: boolean) => void;
+  data: any
 };
 
-const handleResumeDownload = () => {
+const handleResumeDownload = (file: string) => {
   const link = document.createElement("a");
-  link.href = "/resume.pdf";
-  link.download = "resume.pdf";
+  link.href = file;
+  link.download = file;
+  link.target = "_blank";
   link.click();
 };
+const FreelanceBraiderDetails = ({ open, setOpen, data }: TPropsType) => {
+  const [currentData, setCurrentData] = useState<any>(null);
 
-const FreelanceBraiderDetails = ({ open, setOpen }: TPropsType) => {
+  useEffect(() => {
+    setCurrentData(data);
+  }, [data]);
   return (
     <>
       <Modal
@@ -31,7 +40,7 @@ const FreelanceBraiderDetails = ({ open, setOpen }: TPropsType) => {
       >
         <div className="pb-20">
           <div className="flex justify-between items-center">
-           <div></div>
+            <div></div>
             <div
               className="size-8 bg-transparent border border-red-500 hover:bg-red-600   rounded-full flex justify-center items-center cursor-pointer group duration-500"
               onClick={() => setOpen(false)}
@@ -45,75 +54,79 @@ const FreelanceBraiderDetails = ({ open, setOpen }: TPropsType) => {
 
           <div className="flex flex-col xl:flex-row  gap-5 ">
             {/* --------------------- owner info --------------------- */}
-            <div className="flex-1">
+            <div className="flex-1 lg:min-w-[500px]">
               <div className="w-fit mx-auto relative">
-                <Avatar src="/user_image1.png" size={120} />
-                <div className="bg-green-600 absolute size-3 bottom-5 right-3 rounded-full border-2"></div>
+                <div className="w-fit mx-auto relative">
+                  <Avatar className="size-38">
+                    <AvatarImage className="size-36" src={currentData?.image || currentData?.freelancerReg?.profile} />
+                    <AvatarFallback className=" flex-center uppercase text-2xl bg-gray-200 text-black  size-36" >{currentData?.fullName?.split(" ")?.length ? `${currentData?.fullName?.split(" ")?.[0]?.charAt(0)}${currentData?.fullName?.split(" ")?.[1]?.charAt(0)}` : currentData?.name?.charAt(0)}  </AvatarFallback>
+                  </Avatar>
+                </div>
               </div>
               <div className="mt-10 space-y-4">
                 <div className="flex justify-between">
                   <h4>Full Name :</h4>
-                  <p className="font-medium">Enrique</p>
+                  <p className="font-medium">{currentData?.fullName}</p>
                 </div>
                 <hr />
                 <div className="flex justify-between">
                   <h4>Salon Name : </h4>
-                  <p className="font-medium">Salon de elegance</p>
+                  <p className="font-medium">{currentData?.freelancerReg?.name}</p>
                 </div>
                 <hr />
                 <div className="flex justify-between">
                   <h4>Mobile Number :</h4>
-                  <p className="font-medium">12345678</p>
+                  <p className="font-medium">{currentData?.phone}</p>
                 </div>
                 <hr />
                 <div className="flex justify-between">
                   <h4>Email :</h4>
-                  <p className="font-medium">jamestracy@gmail.com</p>
+                  <p className="font-medium">{currentData?.email}</p>
                 </div>
                 <hr />
                 <div className="flex justify-between">
                   <h4>Business Registration Number :</h4>
-                  <p className="font-medium">123456789</p>
+                  <p className="font-medium">{currentData?.freelancerReg?.businessRegistrationNumber || "N/A"}</p>
                 </div>
 
                 <hr />
                 <div className="flex justify-between">
                   <h4>Gender :</h4>
-                  <p className="font-medium">Male</p>
+                  <p className="font-medium">{currentData?.gender || "N/A"}</p>
                 </div>
                 <hr />
 
                 <div className="flex justify-between">
                   <h4>Address :</h4>
                   <p className="font-medium">
-                    2715 Ash Dr. San Jose, South Dakota 83475
+                    {currentData?.freelancerReg?.location?.streetAddress}
                   </p>
                 </div>
                 <hr />
                 <div className="flex justify-between">
                   <h4>Joining date :</h4>
-                  <p className="font-medium">16 Aug 2024</p>
+                  <p className="font-medium">{moment(currentData?.freelancerReg?.createdAt).format("ll")}</p>
                 </div>
                 <hr />
                 <div className="flex justify-between">
                   <h4>ID Card :</h4>
                   <button
                     className="bg-main-color hover:bg-blue-800 text-white text-sm px-3 py-1 rounded"
-                    onClick={handleResumeDownload}
+                    onClick={() => handleResumeDownload(currentData?.freelancerReg?.idDocument)}
                   >
                     Click here
                   </button>
                 </div>
                 <hr />
-                <div className="flex justify-between">
+                {currentData?.freelancerReg?.businessRegistration && <div className="flex justify-between">
                   <h4>Business registration :</h4>
                   <button
                     className="bg-main-color hover:bg-blue-800 text-white text-sm px-3 py-1 rounded"
-                    onClick={handleResumeDownload}
+                    onClick={() => handleResumeDownload(currentData?.freelancerReg?.businessRegistration)}
                   >
                     Click here
                   </button>
-                </div>
+                </div>}
               </div>
             </div>
             {/* ------------------------------ rating and review    ---------------- */}
@@ -121,110 +134,23 @@ const FreelanceBraiderDetails = ({ open, setOpen }: TPropsType) => {
             <div className="flex-1">
               {/* ------------ stats --------------- */}
               <div className="flex flex-wrap justify-between gap-5 my-3">
-                <div className="bg-[#EDEEFC] flex-1 p-6 rounded">
+                <div className="bg-[#EDEEFC] flex-1 p-6 rounded ">
                   <h5>Today Services</h5>
-                  <p className="text-xl font-medium">05</p>
+                  <p className="text-xl font-medium">00</p>
                 </div>
                 <div className="bg-[#EDEEFC] flex-1 p-6 rounded">
                   <h5>Upcoming Services</h5>
-                  <p className="text-xl font-medium">32</p>
+                  <p className="text-xl font-medium">00</p>
                 </div>
                 <div className="bg-[#EDEEFC] flex-1 p-6 rounded">
                   <h5>Total Services</h5>
-                  <p className="text-xl font-medium">5,000</p>
+                  <p className="text-xl font-medium">00</p>
                 </div>
               </div>
 
               {/* Right side - Rating & Reviews */}
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-3">Rating & Reviews</h3>
-                <div className="flex items-start gap-6">
-                  <div className="text-3xl font-bold">4.8</div>
-                  <div className="flex-1">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="flex text-[#41AB5D] w-16">★★★★★</div>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-orange-500 h-2 rounded-full"
-                            style={{ width: "85%" }}
-                          ></div>
-                        </div>
-                        <span className="text-gray-600 w-6 text-right">12</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="flex text-[#41AB5D] w-16">★★★★☆</div>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-orange-500 h-2 rounded-full"
-                            style={{ width: "35%" }}
-                          ></div>
-                        </div>
-                        <span className="text-gray-600 w-6 text-right">5</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="flex text-[#41AB5D] w-16">★★★☆☆</div>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-orange-500 h-2 rounded-full"
-                            style={{ width: "20%" }}
-                          ></div>
-                        </div>
-                        <span className="text-gray-600 w-6 text-right">4</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="flex text-[#41AB5D] w-16">★★☆☆☆</div>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-orange-500 h-2 rounded-full"
-                            style={{ width: "10%" }}
-                          ></div>
-                        </div>
-                        <span className="text-gray-600 w-6 text-right">2</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm">
-                        <div className="flex text-[#41AB5D] w-16">★☆☆☆☆</div>
-                        <div className="flex-1 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-orange-500 h-2 rounded-full"
-                            style={{ width: "5%" }}
-                          ></div>
-                        </div>
-                        <span className="text-gray-600 w-6 text-right">0</span>
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-500 mt-2">23 ratings</div>
-                  </div>
-                </div>
-              </div>
-              <div className="my-6">
-                <div className=" overflow-y-auto space-y-4 pr-2">
-                  {reviews?.map((review) => (
-                    <div
-                      key={review.id}
-                      className="flex gap-3 pb-4 border-b border-gray-100 last:border-b-0"
-                    >
-                      <Avatar size={40} src={review.avatar} />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm">
-                            {review.name}
-                          </span>
-                          <div className="flex text-yellow-400 text-xs">
-                            {"★".repeat(review.rating)}
-                          </div>
-                          <span className="text-gray-400 text-xs ml-auto">
-                            {review.timeAgo}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-600 leading-relaxed">
-                          {review.comment}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+
+              <RatingAndReview reviews={currentData?.freelancerReg?.reviews} avgRating={currentData?.freelancerReg?.avgRating} />
             </div>
           </div>
         </div>
