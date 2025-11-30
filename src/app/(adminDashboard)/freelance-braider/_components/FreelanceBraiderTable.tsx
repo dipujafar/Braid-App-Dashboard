@@ -114,7 +114,7 @@ const FreelanceBraiderTable = () => {
           onChange={(e) => setSearchText(e.target.value)}
         ></Input>
       </div>
-      <DataTable columns={columns} data={usersData?.data} pageSize={11}></DataTable>
+      <DataTable columns={columns} data={usersData?.data}  pageSize={Number(limit)} total={usersData?.meta?.totalDoc}></DataTable>
       <FreelanceBraiderDetails
         open={open}
         setOpen={setOpen}

@@ -2,17 +2,24 @@
 import { Image, Input, TableProps } from "antd";
 import { useState } from "react";
 import DataTable from "@/utils/DataTable";
-import RequestModal from "@/components/modals/RequestModal";
 import { ArrowDownWideNarrowIcon, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateBooking from "@/components/drawer/CreateBooking/CreateBooking";
+import { useGetAllBookingsQuery } from "@/redux/api/bookingsApi";
+import TableSkeleton from "@/components/shared/TableSkeleton";
+import { useSearchParams } from "next/navigation";
+import { useDebounce } from "use-debounce";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import moment from "moment";
 
 const statusColor = (status: string) => {
   switch (status) {
-    case "Pending":
+    case "pending":
       return "bg-[#E7FFE9] text-[#00C01F]";
-    case "Approved":
+    case "completed":
       return "bg-[#DEEBFF] text-[#1F10EF]";
+    case "canceled":
+      return "bg-[#DE3D1D] text-[#fff]";
     default:
       return "bg-[#000] text-[#fff]";
   }
@@ -30,85 +37,97 @@ const userType = [
 ];
 
 type TDataType = {
-  key?: number;
-  serial: number;
-  name: string;
-  email: string;
-  date: string;
+  customer: any;
   status: string;
-  stylistSalonName: string;
-  serviceType: string;
-  location: string;
+  vendor: any;
 };
 
-const selectedRandomStatus = () => {
-  const randomIndex = Math.floor(Math.random() * userType.length);
-  return userType[randomIndex]?.value;
-};
-
-const data: TDataType[] = Array.from({ length: 10 }).map((data, inx) => ({
-  key: inx,
-  serial: inx + 1,
-  name: "Robert Fox",
-  email: "robert@gmail.com",
-  date: "10 sep 2025",
-  stylistSalonName: "Salon de Elegance",
-  serviceType: "Box Braid",
-  status: selectedRandomStatus(),
-  location: "New York",
-}));
 
 const BookingServicesTable = () => {
   const [open, setOpen] = useState(false);
+  const page = useSearchParams().get("page") || "1";
+  const limit = useSearchParams().get("limit") || "10";
+  const [searchText, setSearchText] = useState("");
+  const [searchValue] = useDebounce(searchText, 500);
+
+  //  set queries
+  const queries: Record<string, string> = {};
+  if (page) queries.page = page;
+  if (limit) queries.limit = limit;
+  if (searchValue) queries.searchTerm = searchValue;
+
+  const { data: bookingData, isLoading } = useGetAllBookingsQuery(queries);
+
+  if (isLoading) return <TableSkeleton />
+
+  console.log(bookingData?.data);
 
   const columns: TableProps<TDataType>["columns"] = [
     {
       title: "Serial",
-      dataIndex: "serial",
-      render: (text) => <p>#{text}</p>,
+      render: (text, record, index) => <p>
+        {
+          `# ${Number(page) === 1
+            ? index + 1
+            : (Number(page) - 1) * Number(limit) + index + 1
+          }`}
+      </p>,
     },
     {
       title: "User Name",
-      dataIndex: "name",
-      align: "center",
-      render: (text) => (
-        <div className="flex  justify-center items-center gap-x-1">
-          <Image
-            src={"/user_image1.png"}
-            alt="profile-picture"
+      render: (text, record) => (
+        <div className="flex items-center gap-x-1">
+          {record?.customer?.image ? <Image
+            src={record?.customer?.image}
+            alt="user_image"
             width={40}
             height={40}
-            className="size-10"
-          ></Image>
-          <p>{text}</p>
+            className="rounded-full"
+          /> : <Avatar > <AvatarFallback className="w-full flex-center uppercase text-lg bg-gray-200 text-black bg-red-500 " >{record?.customer?.fullName?.charAt(0)} </AvatarFallback></Avatar>
+          }
+          <p>{record?.customer?.fullName}</p>
+
         </div>
       ),
     },
     {
       title: "Email",
-      dataIndex: "email",
-      align: "center",
+      render: (text, record) => <p>{record?.customer?.email}</p>,
     },
     {
       title: "Stylist/Salon Name",
-      dataIndex: "stylistSalonName",
-      align: "center",
+      render: (text, record) => (
+        <div className="flex items-center gap-x-1">
+          {record?.vendor?.image ? <Image
+            src={record?.vendor?.image}
+            alt="user_image"
+            width={40}
+            height={40}
+            className="rounded-full"
+          /> : <Avatar > <AvatarFallback className="w-full flex-center uppercase text-lg bg-gray-200 text-black " >{record?.vendor?.fullName?.charAt(0)} </AvatarFallback></Avatar>
+          }
+          <p>{record?.vendor?.fullName}</p>
+
+        </div>
+      ),
+    },
+    {
+      title: "Stylist/Salon Email",
+      render: (text, record) => <p>{record?.vendor?.email}</p>,
     },
     {
       title: "Service type",
       dataIndex: "serviceType",
-      align: "center",
     },
     {
       title: "Location",
-      dataIndex: "location",
-      align: "center",
+      dataIndex: "serviceLocation",
     },
 
     {
       title: "Date",
-      dataIndex: "date",
-      align: "center",
+      dataIndex: "createdAt",
+      render: (text) => <p>{moment(text).format("ll")}</p>,
     },
     {
       title: "Status",
@@ -142,9 +161,10 @@ const BookingServicesTable = () => {
             className="!w-[180px] lg:!w-[250px] !py-2 placeholder:text-white !border-none !bg-[#d8d7d7]"
             placeholder="Search..."
             prefix={<Search size={16} color="#000"></Search>}
+            onChange={(e) => setSearchText(e.target.value)}
           ></Input>
         </div>
-        <DataTable columns={columns} data={data} pageSize={8}></DataTable>
+        <DataTable columns={columns} data={bookingData?.data} pageSize={Number(limit)} total={bookingData?.meta?.totalDoc}></DataTable>
         <CreateBooking open={open} setOpen={setOpen}></CreateBooking>
       </div>
     </div>

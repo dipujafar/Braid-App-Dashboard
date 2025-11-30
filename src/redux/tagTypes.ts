@@ -9,6 +9,8 @@ export const tagTypes = {
   support: "Support",
   users: "Users",
   specialists: "Specialists",
+  salonRequests: "SalonRequests",
+  freelanceRequests: "FreelanceRequests",
 };
 
 export const tagTypesList = [
@@ -22,4 +24,6 @@ export const tagTypesList = [
   tagTypes.support,
   tagTypes.users,
   tagTypes.specialists,
+  tagTypes.salonRequests,
+  tagTypes.freelanceRequests,
 ];

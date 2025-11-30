@@ -1,24 +1,14 @@
-"use client";
-import { Avatar, Button, Menu, MenuProps } from "antd";
+"use client";;
+import { Menu, MenuProps } from "antd";
 import Sider from "antd/es/layout/Sider";
 import Link from "next/link";
 import faviconLogo from "@/assets/image/faviconLogo.png";
 import { navLinks } from "@/utils/navLinks";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import avatarImg from "@/assets/image/profile.png";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import {
-  Menubar,
-  MenubarContent,
-  MenubarItem,
-  MenubarMenu,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarTrigger,
-} from "@/components/ui/menubar";
-import { ChevronRight } from "lucide-react";
+import ProfileAvatar from "./ProfileAvatar";
 
 const SidebarContainer = ({ collapsed }: { collapsed: boolean }) => {
   const [current, setCurrent] = useState("dashboard");
@@ -60,53 +50,12 @@ const SidebarContainer = ({ collapsed }: { collapsed: boolean }) => {
       }}
     >
       {/* =============== User Profile ===============  */}
-
-      <Menubar className="py-8 border-none shadow-none px-0 border ">
-        <MenubarMenu>
-          <MenubarTrigger className="shadow-none px-0">
-            <div
-              className={cn(
-                " text-black flex items-center gap-x-1 cursor-pointer",
-                collapsed && "flex-col"
-              )}
-            >
-              <Avatar
-                src={avatarImg.src}
-                size={40}
-                className="border border-main-color size-12"
-              ></Avatar>
-              <h4
-                className={cn(
-                  "text-base font-medium truncate flex-1",
-                  collapsed && "hidden"
-                )}
-              >
-                Istiak Ahmedh
-              </h4>
-            </div>
-          </MenubarTrigger>
-          <MenubarContent className="text-primary-gray">
-            <Link href={"/personal-information"}>
-            <MenubarItem className="hover:bg-gray-100 cursor-pointer">
-              Profile{" "}
-              <MenubarShortcut>
-                <ChevronRight size={16} />
-              </MenubarShortcut>
-            </MenubarItem>
-            </Link>
-            <MenubarSeparator />
-            <Link href={"/login"}>
-              <MenubarItem className="hover:bg-gray-100 cursor-pointer">Logout</MenubarItem>
-            </Link>
-          </MenubarContent>
-        </MenubarMenu>
-      </Menubar>
-
+      <ProfileAvatar collapsed={collapsed} />
       {
         <h1
           className={cn(
-            "text-[#00000066] mb-4",
-            collapsed ? "5px text-[10px]" : "3px "
+            "text-[#00000066] mb-4 ",
+            collapsed ? "hidden" : "3px "
           )}
         >
           Dashboards

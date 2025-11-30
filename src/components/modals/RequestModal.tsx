@@ -1,23 +1,59 @@
-import { Avatar, Modal } from "antd";
+import { Button, Modal } from "antd";
 import { RiCloseLargeLine } from "react-icons/ri";
-import { Button } from "../ui/button";
 import RequestRejectModal from "./RequestRejectModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import moment from "moment";
+import { dayModify } from "@/utils/dayModify";
+import { cn } from "@/lib/utils";
+import { useUpdateApprovedStatusSalonMutation } from "@/redux/api/salonOwnerRequestApi";
+import { useUpdateApprovedStatusFreelancerMutation } from "@/redux/api/freelancerRequestApi";
+import { Error_Modal } from "@/utils/modals";
+import { toast } from "sonner";
 
 type TPropsType = {
   open: boolean;
   setOpen: (collapsed: boolean) => void;
+  data?: any;
+  title?: string;
 };
 
-const handleResumeDownload = () => {
+const handleResumeDownload = (file: string) => {
   const link = document.createElement("a");
-  link.href = "/resume.pdf";
-  link.download = "resume.pdf";
+  link.href = file;
+  link.download = file;
+  link.target = "_blank";
   link.click();
 };
 
-const RequestModal = ({ open, setOpen }: TPropsType) => {
+const RequestModal = ({ open, setOpen, data, title }: TPropsType) => {
   const [openReject, setOpenReject] = useState(false);
+  const [currentData, setCurrentData] = useState<any>();
+  const [approvedSalonOwner, { isLoading: salonOwnerApprovedLoading }] = useUpdateApprovedStatusSalonMutation();
+  const [approvedFreelancer, { isLoading: freelancerApprovedLoading }] = useUpdateApprovedStatusFreelancerMutation();
+
+
+  useEffect(() => {
+    setCurrentData(data);
+  }, [data]);
+
+  const handleApprove = async () => {
+    if (currentData?.user?.role === "owner") {
+      try {
+        await approvedSalonOwner(currentData?._id).unwrap();
+        toast.success("Successfully approved salon owner", { duration: 1000 });
+      } catch (error: any) {
+        Error_Modal({ title: error?.data?.message || "Something went wrong" });
+      }
+    } else {
+      try {
+        await approvedFreelancer(currentData?._id);
+        toast.success("Successfully approved freelancer", { duration: 1000 });
+      } catch (error: any) {
+        Error_Modal({ title: error?.data?.message || "Something went wrong" });
+      }
+    }
+  };
+
   return (
     <>
       <Modal
@@ -32,10 +68,10 @@ const RequestModal = ({ open, setOpen }: TPropsType) => {
           backgroundColor: "#000",
         }}
       >
-        <div className="pb-20">
+        <div className="pb-20 lg:w-[500px]">
           <div className="flex justify-between items-center">
             <h4 className="text-center text-xl font-medium text-[#333s]">
-              Freelancer
+              {title || "Request Modal"}
             </h4>
             <div
               className="size-8 bg-transparent border border-red-500 hover:bg-red-600   rounded-full flex justify-center items-center cursor-pointer group duration-500"
@@ -51,53 +87,59 @@ const RequestModal = ({ open, setOpen }: TPropsType) => {
           <div className="mt-10 space-y-4">
             <div className="flex justify-between">
               <h4>Full Name :</h4>
-              <p className="font-medium">Enrique</p>
+              <p className="font-medium">{currentData?.user?.fullName}</p>
             </div>
+            {currentData?.salonName && <> <hr />
+              <div className="flex justify-between">
+                <h4>Salon Name :</h4>
+                <p className="font-medium">{currentData?.salonName}</p>
+              </div></>}
             <hr />
             <div className="flex justify-between">
               <h4>Phone number :</h4>
-              <p className="font-medium">12345678</p>
+              <p className="font-medium">{currentData?.user?.phone}</p>
             </div>
             <hr />
             <div className="flex justify-between">
               <h4>Email :</h4>
-              <p className="font-medium">jamestracy@gmail.com</p>
-            </div>
-            <hr />
-            <div className="flex justify-between">
-              <h4>Experience :</h4>
-              <p className="font-medium">6 Years</p>
+              <p className="font-medium">{currentData?.user?.email}</p>
             </div>
 
+            {currentData?.experienceYear && <> <hr /> <div className="flex justify-between">
+              <h4>Experience :</h4>
+              <p className="font-medium">{currentData?.experienceYear} Years</p>
+            </div> </>}
+
             <hr />
-            <div className="flex justify-between">
-              <h4>Working days :</h4>
-              <p className="font-medium">Sat-Fri</p>
-            </div>
-            <hr />
+
+
             <div className="flex justify-between">
               <h4>Working times :</h4>
-              <p className="font-medium">08:00 am-07:00 pm</p>
+              <div className=" max-w-[310px] flex flex-wrap gap-x-3 gap-y-1">
+                {currentData?.openingHours?.map((dayAndTime: any, index: number) => <div key={index} className={cn("bg-main-color px-2 rounded-md text-white", dayAndTime?.enabled || "hidden")}>
+                  <p>{dayModify(dayAndTime?.day)} : {dayAndTime?.openTime} - {dayAndTime?.closeTime}</p>
+                </div>)}
+              </div>
             </div>
             <hr />
 
             <div className="flex justify-between">
               <h4>Address :</h4>
-              <p className="font-medium">
-                2715 Ash Dr. San Jose, South Dakota 83475
+              <p className="font-medium max-w-[300px]">
+                {currentData?.location?.streetAddress}
               </p>
             </div>
             <hr />
             <div className="flex justify-between">
-              <h4>Joining date :</h4>
-              <p className="font-medium">16 Aug 2024</p>
+              <h4>Date :</h4>
+              <p className="font-medium">{moment(currentData?.createdAt).format("ll")}</p>
             </div>
             <hr />
             <div className="flex justify-between">
               <h4>ID Card :</h4>
               <button
                 className="bg-main-color hover:bg-blue-800 text-white text-sm px-3 py-1 rounded"
-                onClick={handleResumeDownload}
+                onClick={() => handleResumeDownload(currentData?.idDocument)}
               >
                 Click here
               </button>
@@ -107,7 +149,7 @@ const RequestModal = ({ open, setOpen }: TPropsType) => {
               <h4>Business registration :</h4>
               <button
                 className="bg-main-color hover:bg-blue-800 text-white text-sm px-3 py-1 rounded"
-                onClick={handleResumeDownload}
+                onClick={() => handleResumeDownload(currentData?.businessRegistration)}
               >
                 Click here
               </button>
@@ -115,7 +157,7 @@ const RequestModal = ({ open, setOpen }: TPropsType) => {
           </div>
 
           <div className="mt-5 flex gap-x-2">
-            <Button
+            {currentData?.approvalStatus !== "rejected" && <Button
               onClick={() => {
                 setOpenReject(true);
                 setOpen(false);
@@ -123,15 +165,15 @@ const RequestModal = ({ open, setOpen }: TPropsType) => {
               className="w-full text-[#9A0003] border border-[#9A0003] bg-transparent hover:bg-gray-200 "
             >
               Reject
-            </Button>
-            <Button className="w-full bg-[#4625A0] hover:bg-[#5539a1]">
+            </Button>}
+            <Button loading={salonOwnerApprovedLoading || freelancerApprovedLoading} onClick={handleApprove} className="w-full bg-[#4625A0] hover:bg-[#5539a1]">
               Approved
             </Button>
           </div>
         </div>
       </Modal>
 
-      <RequestRejectModal open={openReject} setOpen={setOpenReject} />
+      <RequestRejectModal open={openReject} setOpen={setOpenReject} role={currentData?.user?.role} id={currentData?._id} />
     </>
   );
 };
