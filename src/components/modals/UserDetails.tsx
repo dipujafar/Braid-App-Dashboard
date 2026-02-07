@@ -48,7 +48,7 @@ const UserDetails = ({ open, setOpen, data }: TPropsType) => {
         <div className="w-fit mx-auto relative">
           <Avatar className="size-38">
             <AvatarImage className="size-36" src={currentData?.image} />
-            <AvatarFallback className=" flex-center uppercase text-2xl bg-gray-200 text-black  size-36" >{currentData?.fullName?.split(" ")?.length ? `${currentData?.fullName?.split(" ")?.[0]?.charAt(0)}${currentData?.fullName?.split(" ")?.[1]?.charAt(0)}` : currentData?.name?.charAt(0)}  </AvatarFallback>
+            <AvatarFallback className=" flex-center uppercase text-2xl bg-gray-200 text-black  size-36" >{currentData?.fullName?.split(" ")?.length ? `${currentData?.fullName?.split(" ")?.[0]?.charAt(0)}${currentData?.fullName?.split(" ").length > 1 ? currentData?.fullName?.split(" ")?.[1]?.charAt(0): ""}` : currentData?.name?.charAt(0)}  </AvatarFallback>
           </Avatar>
         </div>
         <div className="mt-10 space-y-4">

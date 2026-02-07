@@ -1,5 +1,4 @@
 "use client";
-import CustomAvatar from "@/components/shared/CustomAvatar";
 import { cn } from "@/lib/utils";
 import { useGetAllSupportsQuery } from "@/redux/api/supportsApi";
 import React, { useEffect, useState } from "react";
@@ -25,7 +24,11 @@ export default function SupportTable() {
 
   useEffect(() => {
     if (selectedIdFromParams) {
-      setSelectedSupport(selectedIdFromParams)
+      setSelectedSupport(selectedIdFromParams);
+      if (selectedIdFromParams == 'undefined') {
+        setSelectedSupport(data?.data[0]?._id);
+        updateParams({ selectedId: data?.data[0]?._id })
+      }
     } else {
       data?.data[0]?._id && setSelectedSupport(data?.data[0]?._id);
       updateParams({ selectedId: data?.data[0]?._id })

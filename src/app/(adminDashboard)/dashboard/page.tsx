@@ -1,5 +1,5 @@
 import OngoingServicesTable from "./_components/OngoingServicesTable";
-import SalonGoogleMap from "./_components/SalonGoogleMap";
+// import SalonGoogleMap from "./_components/SalonGoogleMap";
 import StatContainer from "./_components/StatContainer";
 import UpcomingBookingList from "./_components/UpcomingBookingList";
 

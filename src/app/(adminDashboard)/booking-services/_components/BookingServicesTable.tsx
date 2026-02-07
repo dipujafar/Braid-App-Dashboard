@@ -2,7 +2,7 @@
 import { Image, Input, TableProps } from "antd";
 import { useState } from "react";
 import DataTable from "@/utils/DataTable";
-import { ArrowDownWideNarrowIcon, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CreateBooking from "@/components/drawer/CreateBooking/CreateBooking";
 import { useGetAllBookingsQuery } from "@/redux/api/bookingsApi";
@@ -60,12 +60,12 @@ const BookingServicesTable = () => {
 
   if (isLoading) return <TableSkeleton />
 
-  console.log(bookingData?.data);
+
 
   const columns: TableProps<TDataType>["columns"] = [
     {
       title: "Serial",
-      render: (text, record, index) => <p>
+      render: (_, record, index) => <p>
         {
           `# ${Number(page) === 1
             ? index + 1
@@ -75,7 +75,7 @@ const BookingServicesTable = () => {
     },
     {
       title: "User Name",
-      render: (text, record) => (
+      render: (_, record) => (
         <div className="flex items-center gap-x-1">
           {record?.customer?.image ? <Image
             src={record?.customer?.image}
@@ -136,9 +136,9 @@ const BookingServicesTable = () => {
       render: (text) => (
         <p className={`capitalize rounded ${statusColor(text)}`}>{text}</p>
       ),
-      filters: userType,
-      filterIcon: () => <ArrowDownWideNarrowIcon />,
-      onFilter: (value, record) => record.status.indexOf(value as string) === 0,
+      // filters: userType,
+      // filterIcon: () => <ArrowDownWideNarrowIcon />,
+      // onFilter: (value, record) => record.status.indexOf(value as string) === 0,
     },
   ];
 

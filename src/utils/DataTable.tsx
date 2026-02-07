@@ -8,11 +8,13 @@ const DataTable = ({
   data,
   pageSize,
   total,
+  isLoading
 }: {
   columns: any;
   data: any;
   pageSize?: number;
   total?: number;
+  isLoading?: boolean;
 }) => {
   const updateParams = useUpdateSearchParams();
   const page = useSearchParams()?.get("page") || "1";
@@ -20,6 +22,7 @@ const DataTable = ({
     <Table
       columns={columns}
       dataSource={data}
+      loading={isLoading}
       pagination={
        ( pageSize && total! > pageSize)
           ? {

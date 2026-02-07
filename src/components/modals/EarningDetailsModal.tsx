@@ -1,14 +1,24 @@
 import { Button } from "@/components/ui/button";
-import { Avatar, Modal } from "antd";
+import { Modal } from "antd";
 import { RiCloseLargeLine } from "react-icons/ri";
+import moment from "moment";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useEffect, useState } from "react";
 
 type TPropsType = {
   open: boolean;
   setOpen: (collapsed: boolean) => void;
   manual?: boolean;
+  data?: any;
 };
 
-const EarningDetailsModal = ({ open, setOpen, manual }: TPropsType) => {
+const EarningDetailsModal = ({ open, setOpen, manual, data }: TPropsType) => {
+  const [currentData, setCurrentData] = useState<any>(null);
+
+  useEffect(() => {
+    setCurrentData(data);
+  }, [data]);
+
   return (
     <Modal
       open={open}
@@ -38,34 +48,36 @@ const EarningDetailsModal = ({ open, setOpen, manual }: TPropsType) => {
           </div>
         </div>
         <div className="w-fit mx-auto relative">
-          <Avatar src="/user_image1.png" size={120} />
-          <div className="bg-green-600 absolute size-3 bottom-5 right-3 rounded-full border-2"></div>
+          <Avatar className="size-38">
+            <AvatarImage className="size-36" src={currentData?.customer?.image} />
+            <AvatarFallback className=" flex-center uppercase text-2xl bg-gray-200 text-black  size-36" >{currentData?.customerName?.split(" ")?.length ? `${currentData?.customerName?.split(" ")?.[0]?.charAt(0)}${currentData?.customerName?.split(" ").length > 1 ? currentData?.customerName?.split(" ")?.[1]?.charAt(0) : ""}` : currentData?.customer?.fullName?.charAt(0)}  </AvatarFallback>
+          </Avatar>
         </div>
         <div className="mt-10 space-y-4">
           <div className="flex justify-between">
             <h4>User :</h4>
-            <p className="font-medium">James Tracy</p>
+            <p className="font-medium">{currentData?.customerName}</p>
           </div>
           <hr />
           <div className="flex justify-between">
             <h4>Email :</h4>
-            <p className="font-medium">muskantanaz@gmail.com</p>
+            <p className="font-medium">{currentData?.customerEmail}</p>
           </div>
           <hr />
           <div className="flex justify-between">
             <h4>Mobile Number : </h4>
-            <p className="font-medium">01324959819</p>
+            <p className="font-medium">{currentData?.customer?.phone}</p>
           </div>
           <hr />
           <div className="flex justify-between">
-            <h4>Transaction ID : :</h4>
-            <p className="font-medium">#123456</p>
+            <h4>Transaction ID :</h4>
+            <p className="font-medium">{currentData?.trnId}</p>
           </div>
 
           <hr />
           <div className="flex justify-between">
             <h4>Date :</h4>
-            <p className="font-medium">05/17/2025 </p>
+            <p className="font-medium">{moment(currentData?.createdAt).format("ll")}</p>
           </div>
           <hr />
 
@@ -80,12 +92,12 @@ const EarningDetailsModal = ({ open, setOpen, manual }: TPropsType) => {
           )}
           <div className="flex justify-between">
             <h4>Transaction amount :</h4>
-            <p className="font-medium">$100</p>
+            <p className="font-medium">${currentData?.price}</p>
           </div>
           <hr />
           <div className="flex justify-between">
             <h4>Address : </h4>
-            <p className="font-medium">New York, USA</p>
+            <p className="font-medium">{currentData?.vendor?.streetAddress}</p>
           </div>
           {manual && (
             <div className="flex justify-between gap-x-3">

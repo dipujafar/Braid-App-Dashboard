@@ -20,8 +20,6 @@ export default function ProfileAvatar({ collapsed }: { collapsed: boolean }) {
     const user = useAppSelector((state) => state.auth.user);
     const { data } = useGetProfileQuery(undefined, { skip: !user });
 
-    console.log(data?.data?.fullName)
-
     return (
         <Menubar className="py-8 border-none shadow-none px-0 border ">
             <MenubarMenu>

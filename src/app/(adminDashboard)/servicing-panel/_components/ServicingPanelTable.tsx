@@ -1,126 +1,109 @@
 "use client";
 import { Image, Input, TableProps } from "antd";
-import { useState } from "react";
 import DataTable from "@/utils/DataTable";
-import { ArrowDownWideNarrowIcon, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import { useGetServicingNowPanelQuery } from "@/redux/api/servicingNowPanelApi";
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useDebounce } from "use-debounce";
 
 const statusColor = (status: string) => {
   switch (status) {
-    case "Servicing Now":
-      return "bg-[#E7FFE9] text-[#00C01F]";
-    case "Next in line":
-      return "bg-[#DEEBFF] text-[#1F10EF]";
-    case "Upcoming":
-      return "bg-[#FFEACC] text-[#C07000]";
+    case "servicingNow":
+      return { text: "Servicing Now", className: "bg-[#E7FFE9] text-[#00C01F]" };
+    case "nextLine":
+      return { text: "Next in line", className: "bg-[#DEEBFF] text-[#1F10EF]" };
+    case "upcoming":
+      return { text: "Upcoming", className:"bg-[#FFEACC] text-[#C07000]" };
     default:
-      return "bg-[#000] text-[#fff]";
+      return { text: "Unknown", className:"bg-[#000] text-[#fff]" };
   }
 };
 
-const userType = [
-  {
-    text: "Servicing Now",
-    value: "Servicing Now",
-  },
-  {
-    text: "Next in line",
-    value: "Next in line",
-  },
-  {
-    text: "Upcoming",
-    value: "Upcoming",
-  },
-];
 
-type TDataType = {
-  key?: number;
-  serial: number;
-  name: string;
-  email: string;
-  date: string;
-  status: string;
-  stylistSalonName: string;
-  serviceType: string;
-  location: string;
-};
-
-const selectedRandomStatus = () => {
-  const randomIndex = Math.floor(Math.random() * userType.length);
-  return userType[randomIndex]?.value;
-};
-
-const data: TDataType[] = Array.from({ length: 10 }).map((data, inx) => ({
-  key: inx,
-  serial: inx + 1,
-  name: "Robert Fox",
-  email: "robert@gmail.com",
-  date: "10 sep 2025",
-  stylistSalonName: "Salon de Elegance",
-  serviceType: "Box Braid",
-  status: selectedRandomStatus(),
-  location: "New York",
-}));
 
 const ServicingPanelTable = () => {
-  const columns: TableProps<TDataType>["columns"] = [
+
+  const page = useSearchParams().get("page") || "1";
+  const limit = useSearchParams().get("limit") || "10";
+  const [searchText, setSearchText] = useState("");
+  const [searchValue] = useDebounce(searchText, 500);
+
+  //  set queries
+  const queries: Record<string, string> = {};
+  if (page) queries.page = page;
+  if (limit) queries.limit = limit;
+  if (searchValue) queries.searchTerm = searchValue;
+
+  const { data: serviceData, isLoading } = useGetServicingNowPanelQuery(queries);
+  console.log(serviceData?.data?.result);
+  const columns: TableProps<any>["columns"] = [
     {
       title: "Serial",
       dataIndex: "serial",
-      render: (text) => <p>#{text}</p>,
+      render: (text, record, index) => <p>
+        {
+          `# ${Number(page) === 1
+            ? index + 1
+            : (Number(page) - 1) * Number(limit) + index + 1
+          }`}
+      </p>,
     },
     {
       title: "User Name",
-      dataIndex: "name",
-      align: "center",
-      render: (text) => (
-        <div className="flex  justify-center items-center gap-x-1">
+      dataIndex: "user",
+
+      render: (text, record) => (
+        <div className="flex   items-center gap-x-1">
           <Image
-            src={"/user_image1.png"}
+            src={record?.customer?.image}
             alt="profile-picture"
             width={40}
             height={40}
-            className="size-10"
+            className="size-10 rounded-full"
           ></Image>
-          <p>{text}</p>
+          <p>{record?.customer?.fullName}</p>
         </div>
       ),
     },
     {
       title: "Email",
       dataIndex: "email",
-      align: "center",
+
     },
     {
       title: "Stylist/Salon Name",
       dataIndex: "stylistSalonName",
-      align: "center",
+      render: (text, record) => <p>{record?.specialist?.name}</p>,
+
     },
     {
       title: "Service type",
       dataIndex: "serviceType",
-      align: "center",
+
+
     },
     {
       title: "Location",
-      dataIndex: "location",
-      align: "center",
+      dataIndex: "serviceLocation",
+
     },
 
     {
       title: "Date",
       dataIndex: "date",
-      align: "center",
+
     },
     {
       title: "Status",
-      dataIndex: "status",
+      dataIndex: "dashboardStatus",
       align: "center",
       render: (text) => (
-        <p className={`capitalize rounded ${statusColor(text)}`}>{text}</p>
+        <p className={`capitalize text-center rounded ${statusColor(text)?.className}`}>{statusColor(text)?.text}</p>
       ),
-      filters: userType,
-      filterIcon: () => <ArrowDownWideNarrowIcon />,
-      onFilter: (value, record) => record.status.indexOf(value as string) === 0,
+      // filters: userType,
+      // filterIcon: () => <ArrowDownWideNarrowIcon />,
+      // onFilter: (value, record) => record.status.indexOf(value as string) === 0,
     },
   ];
 
@@ -134,9 +117,11 @@ const ServicingPanelTable = () => {
           className="!w-[180px] lg:!w-[250px] !py-2 placeholder:text-white !border-none !bg-[#d8d7d7]"
           placeholder="Search..."
           prefix={<Search size={16} color="#000"></Search>}
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
         ></Input>
       </div>
-      <DataTable columns={columns} data={data} pageSize={8}></DataTable>
+      <DataTable columns={columns} data={serviceData?.data?.result} isLoading={isLoading} pageSize={8}></DataTable>
     </div>
   );
 };

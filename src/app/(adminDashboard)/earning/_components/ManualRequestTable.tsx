@@ -17,7 +17,7 @@ type TDataType = {
   cashIckUp: string;
   address: string;
 };
-const data: TDataType[] = Array.from({ length: 18 }).map((data, inx) => ({
+const data: TDataType[] = Array.from({ length: 5 }).map((data, inx) => ({
   key: inx,
   serial: inx + 1,
   name: "Robert Fox",
@@ -106,7 +106,7 @@ const ManualRequestTable = () => {
       </div>
       <DataTable columns={columns} data={data} pageSize={6}></DataTable>
       <EarningDetailsModal open={open} setOpen={setOpen} manual={true}></EarningDetailsModal>
-      <ManualRequestModal open={manualOpen} setOpen={setManualOpen}></ManualRequestModal>
+      <ManualRequestModal open={manualOpen} setOpen={setManualOpen} ></ManualRequestModal>
     </div>
   );
 };

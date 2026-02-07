@@ -1,6 +1,8 @@
 import * as z from "zod";
 export const formSchema = z.object({
   customerName: z.string().min(1, "Customer name is required"),
+  customerEmail: z.string().email("Invalid email address"),
+  customerPhone: z.string().min(1, "Customer phone is required"),
   serviceType: z.string().min(1, "Service type is required"),
   category: z.string().min(1, "Category is required"),
   serviceLocation: z.string().min(1, "Service location is required"),

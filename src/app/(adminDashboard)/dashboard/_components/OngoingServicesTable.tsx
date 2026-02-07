@@ -2,47 +2,48 @@
 import { Image, TableProps } from "antd";
 import DataTable from "@/utils/DataTable";
 import { cn } from "@/lib/utils";
+import { useGetOngoingBookingsQuery } from "@/redux/api/dashboardOverviewApi";
+import moment from "moment";
+import { useSearchParams } from "next/navigation";
 
-type TDataType = {
-  key?: number;
-  serial: number;
-  name: string;
-  location: string;
-  date: string;
-  stylistOrSalonName: string;
-  serviceType: string;
-};
-const data: TDataType[] = Array.from({ length: 5 }).map((data, inx) => ({
-  key: inx,
-  serial: inx + 1,
-  name: "Muskan Tanaz",
-  stylistOrSalonName: "Salon de Elegance",
-  location: "New York",
-  date: "11 oct 24, 11.10PM",
-  serviceType: "Box Braid",
-  status: "Pending",
-}));
+
 
 const OngoingServicesTable = () => {
-  const columns: TableProps<TDataType>["columns"] = [
+  const page = useSearchParams().get("page") || "1";
+  const limit = useSearchParams().get("limit") || "5";
+
+
+  //  set queries
+  const queries: Record<string, string> = {};
+  if (page) queries.page = page;
+  if (limit) queries.limit = limit;
+
+
+  const { data: serviceData } = useGetOngoingBookingsQuery(queries);
+  // console.log(serviceData);
+  const columns: TableProps<any>["columns"] = [
     {
       title: "Serial",
       dataIndex: "serial",
-      render: (text) => <p>#{text}</p>,
+      render: (_, __, index) => <p> {
+        `# ${Number(page) === 1
+          ? index + 1
+          : (Number(page) - 1) * Number(limit) + index + 1
+        }`}</p>,
     },
     {
       title: "Full Name",
-      dataIndex: "name",
-      render: (text) => (
+      dataIndex: "",
+      render: (_, record) => (
         <div className="flex   items-center gap-x-1">
           <Image
-            src={"/user_image1.png"}
+            src={record?.customer?.image}
             alt="profile-picture"
             width={40}
             height={40}
-            className="size-10"
+            className="size-10 rounded-full"
           ></Image>
-          <p>{text}</p>
+          <p>{record?.customer?.fullName}</p>
         </div>
       ),
     },
@@ -50,6 +51,7 @@ const OngoingServicesTable = () => {
       title: "Stylist/Salon Name",
       dataIndex: "stylistOrSalonName",
       align: "center",
+      render: (text, record) => <p>{record?.vendor?.fullName}</p>,
     },
     {
       title: "Service Type",
@@ -58,19 +60,20 @@ const OngoingServicesTable = () => {
     },
     {
       title: "Location",
-      dataIndex: "location",
+      dataIndex: "serviceLocation",
       align: "center",
     },
     {
       title: "Date",
       dataIndex: "date",
       align: "center",
+      render: (text) => <p>{moment(text).format("DD MMM YYYY")}</p>,
     },
     {
       title: "Status",
       dataIndex: "status",
       align: "center",
-      render: (text) => <p className={cn("rounded",statusColor(text))}>{text}</p>,
+      render: (text) => <p className={cn("rounded", statusColor("Pending"))}>{"Pending"}</p>,
     },
   ];
 
@@ -79,7 +82,7 @@ const OngoingServicesTable = () => {
       <h1 className="  text-xl font-semibold text-text-color px-3 py-5">
         Ongoing Services
       </h1>
-      <DataTable columns={columns} data={data}></DataTable>
+      <DataTable columns={columns} data={serviceData?.data} pageSize={Number(limit)} total={serviceData?.meta?.totalDoc} ></DataTable>
     </div>
   );
 };

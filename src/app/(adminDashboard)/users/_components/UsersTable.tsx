@@ -5,7 +5,6 @@ import DataTable from "@/utils/DataTable";
 import { Eye, Search } from "lucide-react";
 import UserDetails from "@/components/modals/UserDetails";
 import { useGetAllUsersQuery } from "@/redux/api/usersApi";
-import TableSkeleton from "@/components/shared/TableSkeleton";
 import moment from "moment";
 import { useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
@@ -42,12 +41,12 @@ const UsersTable = () => {
 
   const { data: usersData, isLoading } = useGetAllUsersQuery(queries);
 
-  if (isLoading) return <TableSkeleton />
+
 
   const columns: TableProps<TDataType>["columns"] = [
     {
       title: "Serial",
-      render: (text, record, index) => <p>
+      render: (_, __, index) => <p>
         {
           `# ${Number(page) === 1
             ? index + 1
@@ -116,7 +115,7 @@ const UsersTable = () => {
           onChange={(e) => setSearchText(e.target.value)}
         ></Input>
       </div>
-      <DataTable columns={columns} data={usersData?.data} pageSize={Number(limit)} total={usersData?.meta?.totalDoc}></DataTable>
+      <DataTable columns={columns} data={usersData?.data} isLoading={isLoading} pageSize={Number(limit)} total={usersData?.meta?.totalDoc}></DataTable>
       <UserDetails open={open} setOpen={setOpen} data={currentData}></UserDetails>
     </div>
   );

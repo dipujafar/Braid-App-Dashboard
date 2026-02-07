@@ -2,9 +2,9 @@ import UsersTable from "./_components/UsersTable";
 
 const UsersTablePage = () => {
   return (
-    <div>
+    <>
       <UsersTable />
-    </div>
+    </>
   );
 };
 

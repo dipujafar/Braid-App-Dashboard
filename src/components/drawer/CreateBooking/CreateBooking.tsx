@@ -27,6 +27,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { TimePicker } from "@/components/ui/time-picker";
 import { StylistCarousel } from "./StylistCarousel";
 import { FormData, formSchema, stylists } from "./utils.data";
+import { useCreateCustomerMutation } from "@/redux/api/serviceBookingApi";
 
 
 type TPropsType = {
@@ -37,6 +38,7 @@ type TPropsType = {
 export default function CreateBooking({ open, setOpen }: TPropsType) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState("");
+  const [createCustomer, { isLoading }] = useCreateCustomerMutation();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -53,10 +55,18 @@ export default function CreateBooking({ open, setOpen }: TPropsType) {
   });
 
   const onSubmit = async (data: FormData) => {
+    const userData = {
+      name: data.customerName,
+      email: data.customerEmail,
+      phone: data.customerPhone,
+    }
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Booking submitted:", data);
-      setOpen(false);
+      // console.log(userData);
+      const res = await createCustomer(userData).unwrap();
+      console.log("Customer created:", res);
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
+      // console.log("Booking submitted:", data);
+      // setOpen(false);
     } catch (error) {
       console.error("Error submitting booking:", error);
     }
@@ -82,15 +92,41 @@ export default function CreateBooking({ open, setOpen }: TPropsType) {
 
         <div className="space-y-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
               <FormField
                 control={form.control}
                 name="customerName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Customer Name*</FormLabel>
+                    <FormLabel>Customer Name</FormLabel>
                     <FormControl>
                       <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="customerEmail"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Customer Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="customerPhone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Customer Phone</FormLabel>
+                    <FormControl>
+                      <Input type="tel" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
