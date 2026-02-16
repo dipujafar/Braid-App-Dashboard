@@ -14,8 +14,6 @@ import { useDebounce } from "use-debounce";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import moment from "moment";
 
-
-
 const EarningTable = () => {
   const page = useSearchParams().get("page") || "1";
   const limit = useSearchParams().get("limit") || "10";

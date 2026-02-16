@@ -49,7 +49,7 @@ const OngoingServicesTable = () => {
     },
     {
       title: "Stylist/Salon Name",
-      dataIndex: "stylistOrSalonName",
+      dataIndex: "",
       align: "center",
       render: (text, record) => <p>{record?.vendor?.fullName}</p>,
     },
@@ -73,7 +73,7 @@ const OngoingServicesTable = () => {
       title: "Status",
       dataIndex: "status",
       align: "center",
-      render: (text) => <p className={cn("rounded", statusColor("Pending"))}>{"Pending"}</p>,
+      render: () => <p className={cn("rounded", statusColor("Pending"))}>{"Pending"}</p>,
     },
   ];
 

@@ -9,7 +9,6 @@ const EarningPage = () => {
       <EarningStatContainer />
       <ManualRequestTable />
       <EarningTable />
-
     </div>
   );
 };

@@ -25,4 +25,4 @@ const dashboardOverviewApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetDashboardStatsQuery, useGetOngoingBookingsQuery } = dashboardOverviewApi;
+export const { useGetDashboardStatsQuery, useGetOngoingBookingsQuery, useUpcomingBookingsQuery } = dashboardOverviewApi;

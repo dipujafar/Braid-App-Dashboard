@@ -144,14 +144,14 @@ const BookingServicesTable = () => {
 
   return (
     <div className="space-y-5">
-      <div className="ml-auto w-max">
+      {/* <div className="ml-auto w-max">
         <Button
           onClick={() => setOpen(true)}
           className="bg-main-color hover:bg-[#6a53b1] text-white px-4 py-2 rounded-lg"
         >
           <Plus></Plus> Add Booking
         </Button>
-      </div>
+      </div> */}
       <div className="bg-[#F9F9FA] rounded-2xl">
         <div className="flex justify-between items-center">
           <h1 className="  text-xl font-semibold text-text-color px-3 py-5">

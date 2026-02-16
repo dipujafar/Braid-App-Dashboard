@@ -1,100 +1,50 @@
 "use client";
-
 import type React from "react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { ImageIcon, Trash2 } from "lucide-react";
-
-const promoFormSchema = z.object({
-  promoCode: z
-    .string()
-    .min(1, "Promo code is required")
-    .min(3, "Promo code must be at least 3 characters"),
-});
-
-interface PromoItem {
-  id: string;
-  name: string;
-  thumbnail?: string;
-  bannerUrl?: string;
-}
+import { Image, Popconfirm, PopconfirmProps } from "antd";
+import { useDeleteAnnouncementMutation, useGetAnnouncementQuery, useUploadAnnouncementMutation } from "@/redux/api/announcementApi";
+import { toast } from "sonner";
 
 export default function AnnouncementsContainer() {
-  const form = useForm<z.infer<typeof promoFormSchema>>({
-    resolver: zodResolver(promoFormSchema),
-    defaultValues: {
-      promoCode: "",
-    },
-  });
+  const { data } = useGetAnnouncementQuery(undefined);
+  const [uploadBanner] = useUploadAnnouncementMutation(undefined);
+  const [deleteAnnouncement] = useDeleteAnnouncementMutation();
 
-  const [promoItems, setPromoItems] = useState<PromoItem[]>([
-    {
-      id: "1",
-      name: "Product Announcing",
-      bannerUrl: "/hair-style.jpg",
-    },
-    {
-      id: "2",
-      name: "Product Announcing",
-      bannerUrl: "/hair-style.jpg",
-    },
-    {
-      id: "3",
-      name: "Product Announcing",
-      bannerUrl: "/hair-style.jpg",
-    },
-    {
-      id: "4",
-      name: "Product Announcing",
-      bannerUrl: "/hair-style.jpg",
-    },
-    {
-      id: "5",
-      name: "Product Announcing",
-      bannerUrl: "/hair-style.jpg",
-    },
-  ]);
 
-  const onSubmit = (values: z.infer<typeof promoFormSchema>) => {
-    console.log("Saving promo code:", values.promoCode);
-    // Add your save logic here
-    form.reset();
-  };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files?.[0];
+    const formData = new FormData();
+
     if (files) {
-      Array.from(files).forEach((file, index) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const newItem: PromoItem = {
-            id: Date.now().toString() + index,
-            name: "Product Announcing",
-            bannerUrl: e.target?.result as string,
-          };
-          setPromoItems((prev) => [...prev, newItem]);
-        };
-        reader.readAsDataURL(file);
-      });
-      console.log("Files uploaded:", files);
+      formData.append("images", files);
+    }
+
+    toast.loading("Uploading Announcement...", { id: "announcement-upload" });
+    try {
+      await uploadBanner(formData).unwrap();
+      toast.success("Successfully uploaded image");
+      toast.dismiss("announcement-upload");
+    } catch (error) {
+      toast.error("Failed to upload image");
+      toast.dismiss("announcement-upload");
     }
   };
 
-  const handleDeleteItem = (id: string) => {
-    setPromoItems(promoItems.filter((item) => item.id !== id));
+  const confirm = async (id: string) => {
+    try {
+      await deleteAnnouncement(id).unwrap();
+      toast.success("Successfully deleted announcement");
+    } catch (error) {
+      toast.error("Failed to delete announcement");
+    }
   };
 
   return (
@@ -103,9 +53,9 @@ export default function AnnouncementsContainer() {
         Announcements
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="">
         {/* Left Side - Promo Control */}
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -129,7 +79,7 @@ export default function AnnouncementsContainer() {
               </Button>
             </form>
           </Form>
-        </div>
+        </div> */}
 
         {/* Right Side - Banner Image Upload and List */}
         <div className="space-y-6">
@@ -139,7 +89,6 @@ export default function AnnouncementsContainer() {
             <input
               type="file"
               id="image-upload"
-              multiple
               accept="image/jpeg,image/png"
               onChange={handleImageUpload}
               className="hidden"
@@ -160,33 +109,42 @@ export default function AnnouncementsContainer() {
 
           {/* Promo Items List */}
           <div className="space-y-3">
-            {promoItems.map((item) => (
-              <Card key={item.id} className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
-                      {item.bannerUrl ? (
-                        <img
-                          src={item.bannerUrl || "/placeholder.svg"}
+            {data?.data?.result?.map((item: any) => (
+              item?.images?.map((image: any) => (
+                <Card key={image?.key} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-32 h-20 bg-gray-200 rounded flex items-center justify-center overflow-hidden">
+                        <Image
+                          src={image?.url || "/placeholder.svg"}
                           alt="Banner thumbnail"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full"
                         />
-                      ) : (
-                        <ImageIcon className="w-5 h-5 text-gray-400" />
-                      )}
+
+                      </div>
+                      <span className="text-lg font-medium text-gray-700">
+                        {item.name}
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-700">
-                      {item.name}
-                    </span>
+                    {/* <button
+                      onClick={() => handleDeleteItem(item.id)}
+                      className="text-red-500 hover:text-red-700 transition-colors"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button> */}
+
+                    <Popconfirm
+                      title="Delete the Announcement"
+                      description="Are you sure to delete this Announcement?"
+                      onConfirm={() => confirm(item?._id)}
+                      okText="Yes"
+                      cancelText="No"
+                    >
+                      <Trash2 color="red" className="w-5 h-5 cursor-pointer" />
+                    </Popconfirm>
                   </div>
-                  <button
-                    onClick={() => handleDeleteItem(item.id)}
-                    className="text-red-500 hover:text-red-700 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </Card>
+                </Card>
+              ))
             ))}
           </div>
         </div>
