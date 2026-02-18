@@ -12,13 +12,17 @@ import {
     MenubarTrigger,
 } from "@/components/ui/menubar";
 import { ChevronRight } from "lucide-react";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useGetProfileQuery } from "@/redux/api/profileApi";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Image } from "antd";
+import { logout } from "@/redux/features/authSlice";
+import { useRouter } from "next/navigation";
 export default function ProfileAvatar({ collapsed }: { collapsed: boolean }) {
     const user = useAppSelector((state) => state.auth.user);
     const { data } = useGetProfileQuery(undefined, { skip: !user });
+    const dispatch = useAppDispatch();
+    const router = useRouter();
 
     return (
         <Menubar className="py-8 border-none shadow-none px-0 border ">
@@ -58,9 +62,9 @@ export default function ProfileAvatar({ collapsed }: { collapsed: boolean }) {
                         </MenubarItem>
                     </Link>
                     <MenubarSeparator />
-                    <Link href={"/login"}>
-                        <MenubarItem className="hover:bg-gray-100 cursor-pointer">Logout</MenubarItem>
-                    </Link>
+                    <p>
+                        <MenubarItem onClick={() => { dispatch(logout()); router.refresh(); }} className="hover:bg-gray-100 cursor-pointer">Logout</MenubarItem>
+                    </p>
                 </MenubarContent>
             </MenubarMenu>
         </Menubar>
