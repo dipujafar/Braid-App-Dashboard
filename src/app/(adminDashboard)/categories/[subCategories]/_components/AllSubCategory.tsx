@@ -1,8 +1,7 @@
 "use client";;
 import { Button } from "@/components/ui/button";
-import { Empty, message, Popconfirm, PopconfirmProps } from "antd";
+import { Empty} from "antd";
 import CategoryCard from "../../_components/CategoryCard";
-import { serviceCategories } from "../../_components/utils.data";
 import { useDeleteSubCategoriesMutation, useGetSubCategoriesQuery } from "@/redux/api/subCategoriesApi";
 import DeleteData from "@/components/shared/DeleteData";
 import EditSubCategory from "@/components/shared/EditCategory";
@@ -11,10 +10,6 @@ import PaginationSection from "@/components/shared/PaginationSection";
 import { useSearchParams } from "next/navigation";
 import SubCategorySkeleton from "./SubCategorySkeleton";
 
-const confirmBlock: PopconfirmProps["onConfirm"] = (e) => {
-    console.log(e);
-    message.success("Successfully deleted");
-};
 export default function AllSubCategory({ id }: { id: string }) {
     const [deleteSubCategory] = useDeleteSubCategoriesMutation();
     const [open, setOpen] = useState(false);
