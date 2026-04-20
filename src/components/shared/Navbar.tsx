@@ -47,9 +47,11 @@ const Navbar = ({ collapsed, setCollapsed }: TNavbarProps) => {
         {/* Notification */}
         <Link href={"/notifications"}>
           <div className="flex justify-center items-center size-12  rounded-full cursor-pointer relative">
-            <IoNotificationsOutline size={28} color="#AB9D6E" />
+            <div className="border border-main-color size-10 flex-center rounded-full ">
+              <IoNotificationsOutline size={28} color="#AB9D6E" />
+            </div>
 
-            <Badge
+            {/* <Badge
               count={1}
               style={{
                 border: "none",
@@ -60,7 +62,7 @@ const Navbar = ({ collapsed, setCollapsed }: TNavbarProps) => {
                 top: "-24px",
                 right: "-8px",
               }}
-            ></Badge>
+            ></Badge> */}
           </div>
         </Link>
 

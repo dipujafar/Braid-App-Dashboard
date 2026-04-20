@@ -7,7 +7,7 @@ const EarningPage = () => {
   return (
     <div className="lg:space-y-5 space-y-3 ">
       <EarningStatContainer />
-      <ManualRequestTable />
+      {/* <ManualRequestTable /> */}
       <EarningTable />
     </div>
   );

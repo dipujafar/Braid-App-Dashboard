@@ -1,41 +1,24 @@
 "use client";
 import moment from "moment";
 import { Trash2 } from "lucide-react";
+import { useGetNotificationsQuery } from "@/redux/api/notificationApi";
+import { useSearchParams } from "next/navigation";
+import NotificationListSkeleton from "./NotificationContainerSkeleton";
+import PaginationSection from "@/components/shared/PaginationSection";
 
-const notificationData = [
-  {
-    message: "Added One More Salon Owner",
-    description:
-      "Please Update your business information to continue using the dashboard seamlessly",
-    time: "Mon Apr 07 2025 22:00:00 GMT+0000",
-  },
-  {
-    message: "Freelance Account Added",
-    description:
-      "Please Update your business information to continue using dashboard seamlessly",
-    time: "Mon Apr 07 2025 22:00:00 GMT+0000",
-  },
-  {
-    message: "Added One More Booking",
-    description:
-      "Please update your information to continue using dashboard seamlessly",
-    time: "Mon Apr 07 2025 22:00:00 GMT+0000",
-  },
-  {
-    message: "Added One More Reservation",
-    description:
-      "Please update your information to continue using dashboard seamlessly",
-    time: "Mon Apr 07 2025 22:00:00 GMT+0000",
-  },
-  {
-    message: "Added One More Reservation",
-    description:
-      "Please update your information to continue using dashboard seamlessly",
-    time: "Mon Apr 07 2025 22:00:00 GMT+0000",
-  },
-];
+
 
 const NotificationContainer = () => {
+  const page = useSearchParams().get("page") || "1";
+  const limit = useSearchParams().get("limit") || "10";
+  const queries: Record<string, string> = {};
+
+  if (page) queries["page"] = page;
+  if (limit) queries["limit"] = limit;
+
+  const { data, isLoading } = useGetNotificationsQuery(queries);
+
+  console.log(data?.data?.data);
 
   return (
     <div>
@@ -44,13 +27,17 @@ const NotificationContainer = () => {
         <div className="xl:mt-8 mt-6 xl:px-10 px-6 text-text-color">
           <div className="flex gap-x-3 mb-3">
             <h5 className="font-medium text-2xl ">Notification</h5>
-            <div className="size-9 bg-main-color  rounded-full flex justify-center items-center text-lg text-white">
+            {/* <div className="size-9 bg-main-color  rounded-full flex justify-center items-center text-lg text-white">
               {notificationData?.length}
-            </div>
+            </div> */}
           </div>
+
+          {
+            isLoading && <NotificationListSkeleton />
+          }
           {/* showing today notification */}
-          <div className="space-y-5">
-            {notificationData?.map((notification, index) => (
+          {!isLoading && <div className="space-y-3">
+            {data?.data?.data?.map((notification: any, index: number) => (
               <div className="flex items-center gap-x-4">
                 <div
                   key={index}
@@ -58,50 +45,24 @@ const NotificationContainer = () => {
                 >
                   <div className="flex justify-between gap-x-2 items-center">
                     <h5 className="font-medium text-xl">
-                      {notification?.message}
+                      {notification?.title}
                     </h5>
-                    <p>{moment(notification?.time).fromNow()}</p>
+                    <p>{moment(notification?.createdAt).fromNow()}</p>
                   </div>
-                  <p className="text-gray-400">{notification?.description}</p>
+                  <p className="text-gray-400">{notification?.message}</p>
                 </div>
                 {/* delete option */}
-                <div className="bg-[#D30000]/30 size-10 flex justify-center items-center rounded-full cursor-pointer">
+                {/* <div className="bg-[#D30000]/30 size-10 flex justify-center items-center rounded-full cursor-pointer">
                   <Trash2 color="#D30000"></Trash2>
-                </div>
+                </div> */}
               </div>
             ))}
-          </div>
-        </div>
+          </div>}
 
-        {/* <div className="mt-5 grid grid-cols-1 gap-8">
-          {currentNotifications.map((notification, inx) => (
-            <div key={inx} className="flex gap-4 items-center">
-              <div className="bg-[#FFFFFF] p-2 rounded">
-                <MdOutlineNotificationsNone
-                  size={28}
-                  color="var(--color-main)"
-                />
-              </div>
-              <div className=" text-text-color">
-                <h4 className="text-lg font-medium ">
-                  {notification.message} from {notification?.name}
-                </h4>
-                <p>{notification.time}</p>
-              </div>
-            </div>
-          ))}
-        </div> */}
+          <PaginationSection total={data?.data?.meta?.totalDoc} current={Number(page)}
+            pageSize={Number(limit)} />
+        </div>
       </div>
-      {/* pagination */}
-      {/* <div className="w-max mt-3 ml-auto">
-        <Pagination
-          current={currentPage}
-          pageSize={pageSize}
-          total={notificationData.length}
-          onChange={(page) => setCurrentPage(page)}
-          showSizeChanger={false} // Disable page size changer if unnecessary
-        />
-      </div> */}
     </div>
   );
 };

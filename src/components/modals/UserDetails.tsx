@@ -1,8 +1,9 @@
-import { Modal } from "antd";
+import { Modal, Skeleton } from "antd";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { RiCloseLargeLine } from "react-icons/ri";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useGetUserBookingStatQuery } from "@/redux/api/usersApi";
 
 type TPropsType = {
   open: boolean;
@@ -12,6 +13,8 @@ type TPropsType = {
 
 const UserDetails = ({ open, setOpen, data }: TPropsType) => {
   const [currentData, setCurrentData] = useState<any>(null);
+  const { data: userBookingStat, isLoading: isStatDataLoading } = useGetUserBookingStatQuery(currentData?._id, { skip: !currentData?._id });
+  console.log(userBookingStat?.data);
 
   useEffect(() => {
     setCurrentData(data);
@@ -48,7 +51,7 @@ const UserDetails = ({ open, setOpen, data }: TPropsType) => {
         <div className="w-fit mx-auto relative">
           <Avatar className="size-38">
             <AvatarImage className="size-36" src={currentData?.image} />
-            <AvatarFallback className=" flex-center uppercase text-2xl bg-gray-200 text-black  size-36" >{currentData?.fullName?.split(" ")?.length ? `${currentData?.fullName?.split(" ")?.[0]?.charAt(0)}${currentData?.fullName?.split(" ").length > 1 ? currentData?.fullName?.split(" ")?.[1]?.charAt(0): ""}` : currentData?.name?.charAt(0)}  </AvatarFallback>
+            <AvatarFallback className=" flex-center uppercase text-2xl bg-gray-200 text-black  size-36" >{currentData?.fullName?.split(" ")?.length ? `${currentData?.fullName?.split(" ")?.[0]?.charAt(0)}${currentData?.fullName?.split(" ").length > 1 ? currentData?.fullName?.split(" ")?.[1]?.charAt(0) : ""}` : currentData?.name?.charAt(0)}  </AvatarFallback>
           </Avatar>
         </div>
         <div className="mt-10 space-y-4">
@@ -88,11 +91,11 @@ const UserDetails = ({ open, setOpen, data }: TPropsType) => {
         <div className="flex justify-between gap-x-5 mt-3">
           <div className="bg-[#EDEEFC] flex-1 p-6 rounded">
             <h5>Total booking</h5>
-            <p className="text-xl font-medium">05</p>
+            {isStatDataLoading ? <Skeleton.Input active size="small" /> : <p className="text-xl font-medium">{userBookingStat?.data?.totalBooking}</p>}
           </div>
           <div className="bg-[#EDEEFC] flex-1 p-6 rounded">
             <h5>Total Payment</h5>
-            <p className="text-xl font-medium">$5000</p>
+            {isStatDataLoading ? <Skeleton.Input active size="small" /> : <p className="text-xl font-medium">${userBookingStat?.data?.totalPayment}</p>}
           </div>
         </div>
       </div>

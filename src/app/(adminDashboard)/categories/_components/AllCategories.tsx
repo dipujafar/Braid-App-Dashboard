@@ -6,7 +6,8 @@ import CategoriesSkeletonContainer from "./CategoriesSkeletonContainer";
 import DeleteData from "@/components/shared/DeleteData";
 import { useDeleteCategoriesMutation } from "@/redux/api/categoriesApi";
 import { useState } from "react";
-import EditCategory from "@/components/shared/EditCategory";
+import EditCategory from "@/components/shared/EditSubCategory";
+
 
 type TPropsType = {
     loading: boolean;

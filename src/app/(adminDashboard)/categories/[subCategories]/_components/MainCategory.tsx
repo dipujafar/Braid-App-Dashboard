@@ -31,13 +31,13 @@ export default function MainCategory({ data, loading }: any) {
   return (
     <div className="w-full lg:w-1/3 bg-[#F9F9FA] p-6">
       <Card className="px-4 py-8 flex flex-col items-center space-y-3 hover:shadow-md transition-shadow border-[#BBBBBB] ">
-        <div className=" size-32 flex justify-center border-2 rounded-full border-main-color p-1.5">
+        <div className="size-[115px] flex justify-center items-center border-2 rounded-full border-main-color p-1.5">
           <Image
             src={data?.image}
             alt={data?.name}
             width={100}
             height={100}
-            className="size-[100px] object-cover"
+            className="size-[100px] object-cover rounded-full "
           />
         </div>
 

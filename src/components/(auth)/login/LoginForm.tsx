@@ -27,7 +27,7 @@ const LoginForm = () => {
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     try {
       const formattedValues: Record<string, string> = {
-        email: values.email as string,
+        phoneOrEmail: values.email as string,
         password: values.password as string,
       };
       const res = await login(formattedValues).unwrap();

@@ -19,7 +19,14 @@ const userApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: [tagTypes.users],
     }),
+    getUserBookingStat: builder.query({
+      query: (userId) => ({
+        url: `/dashboard/user-stats/${userId}`,
+        method: "GET",
+      }),
+      providesTags: [tagTypes.users],
+    })
   }),
 });
 
-export const { useGetAllUsersQuery, useUserStatusChangeMutation } = userApi;
+export const { useGetAllUsersQuery, useUserStatusChangeMutation, useGetUserBookingStatQuery } = userApi;

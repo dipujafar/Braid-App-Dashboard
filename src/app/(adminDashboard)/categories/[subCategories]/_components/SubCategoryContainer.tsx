@@ -1,8 +1,6 @@
 "use client";;
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Image } from "antd";
 import { useState } from "react";
 import { useGetCategoryByIdQuery } from "@/redux/api/categoriesApi";
 import AddSubCategory from "@/components/shared/AddSubCategory";

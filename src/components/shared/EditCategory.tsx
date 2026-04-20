@@ -1,4 +1,3 @@
-import { useEditCategoryMutation } from "@/redux/api/categoriesApi";
 import { useEditSubCategoriesMutation } from "@/redux/api/subCategoriesApi";
 import { Error_Modal } from "@/utils/modals";
 import { Button, ConfigProvider, Form, Input, Modal, Upload } from "antd";

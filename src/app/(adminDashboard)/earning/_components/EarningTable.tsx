@@ -27,7 +27,7 @@ const EarningTable = () => {
   if (limit) queries.limit = limit;
   if (searchValue) queries.searchTerm = searchValue;
 
-  const { data: transactionData, isLoading } = useGetTransitionHistoryQuery(queries)
+  const { data: transactionData, isLoading } = useGetTransitionHistoryQuery(queries);
   const [open, setOpen] = useState(false);
 
 
