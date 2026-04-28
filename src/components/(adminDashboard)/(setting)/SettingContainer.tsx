@@ -14,6 +14,10 @@ const links = [
     path: "changePassword",
   },
   {
+    lable: "Set Order Confirmation Price",
+    path: "set-default-price",
+  },
+  {
     lable: "Terms & Condition",
     path: "terms-condition",
   },

@@ -25,6 +25,8 @@ const RequestsListTable = () => {
   const limit = useSearchParams().get("limit") || "10";
 
 
+
+
   //  set queries
   const queries: Record<string, string> = {};
   if (page) queries.page = page;
@@ -33,6 +35,9 @@ const RequestsListTable = () => {
   const { data: salonOwnerRequests, isLoading } = useGetAllSalonOwnerRequestsQuery(queries);
 
   if (isLoading) return <TableSkeleton />
+
+
+    console.log(salonOwnerRequests?.data);
 
 
 

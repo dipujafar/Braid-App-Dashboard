@@ -23,7 +23,6 @@ const items: TabsProps['items'] = [
 
 export default function RequestsContainer() {
   const { data, isLoading } = useGetStatQuery({});
-  console.log(data?.data?.stats);
 
 
 

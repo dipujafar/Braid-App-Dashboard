@@ -32,6 +32,8 @@ const RequestModal = ({ open, setOpen, data, title }: TPropsType) => {
   const [approvedFreelancer, { isLoading: freelancerApprovedLoading }] = useUpdateApprovedStatusFreelancerMutation();
 
 
+  console.log(data);
+
   useEffect(() => {
     setCurrentData(data);
   }, [data]);
@@ -150,6 +152,26 @@ const RequestModal = ({ open, setOpen, data, title }: TPropsType) => {
               <button
                 className="bg-main-color hover:bg-blue-800 text-white text-sm px-3 py-1 rounded"
                 onClick={() => handleResumeDownload(currentData?.businessRegistration)}
+              >
+                Click here
+              </button>
+            </div>
+            <hr />
+            <div className="flex justify-between">
+              <h4>Salon Front Photo :</h4>
+              <button
+                className="bg-main-color hover:bg-blue-800 text-white text-sm px-3 py-1 rounded"
+                onClick={() => handleResumeDownload(currentData?.salonFrontPhoto)}
+              >
+                Click here
+              </button>
+            </div>
+            <hr />
+            <div className="flex justify-between">
+              <h4>Salon Inside Photo :</h4>
+              <button
+                className="bg-main-color hover:bg-blue-800 text-white text-sm px-3 py-1 rounded"
+                onClick={() => handleResumeDownload(currentData?.salonInsidePhoto)}
               >
                 Click here
               </button>
