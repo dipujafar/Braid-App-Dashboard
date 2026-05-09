@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { authRoutes } from "../../BraidNYC-App-Dashboard/src/lib/authRoutes";
+import { authRoutes } from "./lib/authRoutes";
+
+
 
 export default function middleware(req: any) {
   const { nextUrl } = req;
