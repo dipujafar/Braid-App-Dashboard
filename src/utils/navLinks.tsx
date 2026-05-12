@@ -15,6 +15,7 @@ import {
   ServerCog,
   SquareMenu,
   SquareTerminal,
+  TicketSlash,
   User,
   Users,
   UsersRound,
@@ -79,6 +80,11 @@ export const navLinks = [
     key: "announcements",
     icon: <Megaphone size={18} />,
     label: <Link href={"/announcements"}>Announcements</Link>,
+  },
+  {
+    key: "banners",
+    icon: <TicketSlash size={18} />,
+    label: <Link href={"/banners"}>Banners</Link>,
   },
 
   {
