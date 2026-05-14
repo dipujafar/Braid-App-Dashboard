@@ -83,7 +83,7 @@ const UsersTable = () => {
 
     {
       title: "Register Date",
-      dataIndex: "date",
+      dataIndex: "createdAt",
       render: (text) => moment(text).format("ll"),
     },
 
