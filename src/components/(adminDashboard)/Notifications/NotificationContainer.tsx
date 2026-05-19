@@ -18,7 +18,8 @@ const NotificationContainer = () => {
 
   const { data, isLoading } = useGetNotificationsQuery(queries);
 
-  console.log(data?.data?.data);
+
+  if(data?.data?.data?.length === 0) return <div className="min-h-[80vh] flex justify-center items-center text-2xl text-text-color font-medium">No Notification Found</div>
 
   return (
     <div>

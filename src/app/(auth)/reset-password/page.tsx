@@ -18,7 +18,7 @@ const ResetPassword = () => {
           <Image
             src={logo}
             alt="logo"
-            className=" mx-auto mb-6 rounded-lg"
+            className=" mx-auto mb-6 rounded-lg size-40 border"
           />
           <div className="mb-6  flex flex-col justify-center items-center gap-y-4">
             <div className="text-center space-y-4 mb-2">

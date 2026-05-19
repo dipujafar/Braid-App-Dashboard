@@ -1,6 +1,5 @@
 "use client";;
 import Link from "next/link";
-import avatarImg from "@/assets/image/profile.png";
 import { cn } from "@/lib/utils";
 import {
     Menubar,

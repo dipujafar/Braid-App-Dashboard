@@ -17,8 +17,8 @@ const LoginPage = () => {
           <Image
             src={logo}
             alt="logo"
-            className=" mx-auto mb-6 rounded-lg"
-           
+            className=" mx-auto mb-6 rounded-lg size-40 border"
+
           />
           <div className="mb-6 flex flex-col justify-center items-center gap-y-4">
             <h2 className="text-2xl font-bold text-black/80">Log in to your account</h2>

@@ -75,7 +75,7 @@ const SidebarContainer = ({ collapsed }: { collapsed: boolean }) => {
             <Image
               src={faviconLogo}
               alt="logo_Image"
-              className={cn(`lg:px-1 `, collapsed && "hidden")}
+              className={cn(`lg:px-1 size-40 border `, collapsed && "hidden")}
             />
           </Link>
           <Link href={"/"}>
